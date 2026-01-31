@@ -237,15 +237,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Money: 0
+  moneyScale: 1
   sushiCount: 0
-  isHappy: 0
+  combo: 0
+  isSpecialMode: 0
+  specialPoint: 0
+  bonusPoint: 0
+  specialPointCD: 1
+  curSPCD: 0
   maxMoney: 0
   maxSushiCount: 0
   sushiSpawner: {fileID: 0}
+  gameData:
+    maxMoney: 0
+    maxSushiCount: 0
+    coins: 0
+    bonusLevel: 0
+    rateLevel: 0
+    spLevel: 0
+    specialBonusLevel: 0
+    lastPlayTime: 2026-02-01 00:10:07
+    totalGamesPlayed: 0
+  resetSaveOnStart: 1
   bonusLevel: 0
   rateLevel: 0
   spLevel: 0
-  rewardLevel: 0
+  specialBonusLevel: 0
   baseBonus:
   - 350
   - 250
@@ -267,11 +284,11 @@ MonoBehaviour:
   - 15
   - 10
   baseSp: 1
-  baseReward: 1
+  baseSpecialBonus: 1
   baseBonusPrice: 1800
   baseRatePrice: 2000
   baseSpPrice: 2200
-  baseRewardPrice: 2000
+  baseSpecialPrice: 2000
 --- !u!114 &69226773
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1843,7 +1860,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1810772023
 RectTransform:
   m_ObjectHideFlags: 0
