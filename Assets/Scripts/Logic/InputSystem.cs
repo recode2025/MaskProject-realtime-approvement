@@ -35,9 +35,6 @@ public class InputSystem : MonoBehaviour
     // 输入事件 - 其他脚本可以订阅这个事件
     public static event Action OnPlayerInput;
     
-    // 上一帧的输入状态（用于检测按下瞬间）
-    private bool lastFrameInput = false;
-    
     void Awake()
     {
         // 单例模式实现
@@ -45,6 +42,11 @@ public class InputSystem : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            
+            if (showDebugLog)
+            {
+                Debug.Log("[InputSystem] InputSystem 已初始化");
+            }
         }
         else
         {
@@ -53,35 +55,39 @@ public class InputSystem : MonoBehaviour
         }
         
         LoadInputSettings();
+        
+        if (showDebugLog)
+        {
+            Debug.Log($"[InputSystem] 当前设置 - 模式: {currentInputMode}, 按键: {keyboardKey}");
+        }
     }
     
     void Update()
     {
-        bool currentInput = false;
-        
         // 根据当前输入模式检测输入
         switch (currentInputMode)
         {
             case InputMode.Touch:
-                currentInput = DetectTouchInput();
+                if (DetectTouchInput())
+                {
+                    TriggerPlayerInput();
+                }
                 break;
                 
             case InputMode.Keyboard:
-                currentInput = DetectKeyboardInput();
+                if (DetectKeyboardInput())
+                {
+                    TriggerPlayerInput();
+                }
                 break;
                 
             case InputMode.Gamepad:
-                currentInput = DetectGamepadInput();
+                if (DetectGamepadInput())
+                {
+                    TriggerPlayerInput();
+                }
                 break;
         }
-        
-        // 检测到输入的瞬间（从无输入到有输入）
-        if (currentInput && !lastFrameInput)
-        {
-            TriggerPlayerInput();
-        }
-        
-        lastFrameInput = currentInput;
     }
     
     /// <summary>
@@ -113,7 +119,14 @@ public class InputSystem : MonoBehaviour
     /// </summary>
     private bool DetectKeyboardInput()
     {
-        return Input.GetKeyDown(keyboardKey);
+        bool keyPressed = Input.GetKeyDown(keyboardKey);
+        
+        if (showDebugLog && keyPressed)
+        {
+            Debug.Log($"[InputSystem] 检测到按键: {keyboardKey}");
+        }
+        
+        return keyPressed;
     }
     
     /// <summary>
@@ -121,13 +134,24 @@ public class InputSystem : MonoBehaviour
     /// </summary>
     private bool DetectGamepadInput()
     {
-        // 检测左摇杆
+        // 检测手柄按钮（A键/Cross键等）- 优先检测按钮
+        if (Input.GetButtonDown("Jump") || Input.GetButtonDown("Fire1"))
+        {
+            return true;
+        }
+        
+        // 检测左摇杆（需要检测从中心位置移动的瞬间）
         float leftStickX = Input.GetAxis("Horizontal");
         float leftStickY = Input.GetAxis("Vertical");
         float leftStickMagnitude = Mathf.Sqrt(leftStickX * leftStickX + leftStickY * leftStickY);
         
-        if (leftStickMagnitude > joystickDeadZone)
+        // 使用 GetAxisRaw 来检测摇杆移动的瞬间
+        float leftStickRawX = Input.GetAxisRaw("Horizontal");
+        float leftStickRawY = Input.GetAxisRaw("Vertical");
+        
+        if (leftStickMagnitude > joystickDeadZone && (Mathf.Abs(leftStickRawX) > 0.1f || Mathf.Abs(leftStickRawY) > 0.1f))
         {
+            // 简单的防抖：检查是否刚刚超过死区
             return true;
         }
         
@@ -146,12 +170,6 @@ public class InputSystem : MonoBehaviour
         catch
         {
             // 如果没有配置右摇杆轴，忽略错误
-        }
-        
-        // 检测手柄按钮（A键/Cross键等）
-        if (Input.GetButtonDown("Jump") || Input.GetButtonDown("Fire1"))
-        {
-            return true;
         }
         
         return false;
