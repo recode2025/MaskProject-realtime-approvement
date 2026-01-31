@@ -26,6 +26,16 @@ jobs:
         with:
           lfs: true
 
+      # --- 优化 1: 缓存 Library 文件夹 ---
+      # 只有当 manifest.json 或版本号变化时，才会失效重新下载
+      - name: Cache Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/ProjectVersion.txt') }}
+          restore-keys: |
+            Library-
+
       - name: Fix Unity China Version Suffix
         run: |
           VERSION_FILE="./ProjectSettings/ProjectVersion.txt"
@@ -35,7 +45,7 @@ jobs:
 
       - name: Run Unity Tests
         uses: game-ci/unity-test-runner@v4
-        id: tests # 注意这个 ID，飞书通知要用到它
+        id: tests
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -47,7 +57,10 @@ jobs:
           testMode: ${{ matrix.testMode }}
           artifactsPath: ${{ matrix.testMode }}-artifacts
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          customParameters: "-nographics -logfile /dev/stdout"
+          # --- 优化 2: 增加编译优化参数 ---
+          # -burst-disable-compilation: 禁用 Burst 编译以节省时间
+          # -no-quicksearch: 禁用搜索索引生成
+          customParameters: "-nographics -burst-disable-compilation -no-quicksearch -logfile /dev/stdout"
 
       - name: Upload Test Results
         if: always() && steps.tests.outputs.artifactsPath != ''
@@ -56,34 +69,30 @@ jobs:
           name: Test-results-for-${{ matrix.testMode }}
           path: ${{ matrix.testMode }}-artifacts
 
-      # --- 新增：飞书详细反馈步骤 ---
-      - name: Notify Feishu with Test Metrics
-        if: always() # 保证测试挂了也能发通知
-        uses: foxundermoon/feishu-action@v2
-        with:
-          url: ${{ secrets.FEISHU_BOT_WEBHOOK_URL }}
-          msg_type: post
-          content: |
-            post:
-              zh_cn:
-                title: "Unity ${{ matrix.testMode }} 测试反馈"
-                content:
-                  - - tag: text
-                      text: "结果状态: ${{ job.status == 'success' && '✅ 成功' || '❌ 失败' }}\n"
-                  - - tag: text
-                      text: "📊 测试统计:\n"
-                  - - tag: text
-                      text: "  - 总计: ${{ steps.tests.outputs.total }}\n"
-                  - - tag: text
-                      text: "  - 通过: ${{ steps.tests.outputs.passed }}\n"
-                  - - tag: text
-                      text: "  - 失败: ${{ steps.tests.outputs.failed }}\n"
-                  - - tag: text
-                      text: "  - 跳过: ${{ steps.tests.outputs.skipped }}\n"
-                  - - tag: text
-                      text: "--------------------------------\n"
-                  - - tag: text
-                      text: "👤 提交人: ${{ github.actor }}\n"
-                  - - tag: a
-                      text: "🔍 查看 GitHub 详细测试报告"
-                      href: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+    - name: Notify Feishu with Test Metrics
+    if: always()
+    uses: foxundermoon/feishu-action@v2
+    with:
+      url: ${{ secrets.FEISHU_BOT_WEBHOOK_URL }}
+      msg_type: post
+      content: |
+      post:
+        zh_cn:
+        title: "Unity ${{ matrix.testMode }} 测试反馈"
+        content:
+          - - tag: text
+            text: "结果状态: ${{ job.status == 'success' && '✅ 成功' || '❌ 失败' }}\n"
+          - - tag: text
+            text: "📊 测试统计:\n"
+          - - tag: text
+            # 使用 default('0') 确保变量为空时显示 0
+            text: "  - 总计: ${{ steps.tests.outputs.total || '0' }}\n"
+          - - tag: text
+            text: "  - 通过: ${{ steps.tests.outputs.passed || '0' }}\n"
+          - - tag: text
+            text: "  - 失败: ${{ steps.tests.outputs.failed || '0' }}\n"
+          - - tag: text
+            text: "--------------------------------\n"
+          - - tag: a
+            text: "🔍 查看 GitHub 详细测试报告"
+            href: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
