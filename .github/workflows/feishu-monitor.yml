@@ -23,40 +23,40 @@ jobs:
           echo "执行构建/测试任务..."
           sleep 2
 
-      - name: Notify Build Status
-        # 即使失败也发送通知
-        if: always() && github.event_name == 'push'
-        uses: foxundermoon/feishu-action@v2
-        with:
-          url: ${{ secrets.FEISHU_BOT_WEBHOOK_URL }}
-          msg_type: post
-          content: |
-            post:
-              zh_cn:
-                title: "项目构建结果: ${{ job.status == 'success' && '✅ 成功' || '❌ 失败' }}"
-                content:
-                  - - tag: text
-                      text: "📦 仓库: "
-                    - tag: text
-                      text: "${{ github.repository }}"
-                  - - tag: text
-                      text: "\n🔨 分支: "
-                    - tag: text
-                      text: "${{ github.ref_name }}"
-                  - - tag: text
-                      text: "\n👤 提交人: "
-                    - tag: text
-                      text: "${{ github.actor }}"
-                  - - tag: text
-                      text: "\n📝 提交信息: "
-                    - tag: text
-                      text: "${{ github.event.head_commit.message }}"
-                  - - tag: text
-                      text: "\n--------------------------------"
-                  - - tag: a
-                      text: "🔍 查看完整流水线详情"
-                      # 关键修复点：这里的分隔符和括号现在是正确的了
-                      href: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      # - name: Notify Build Status
+      #   # 即使失败也发送通知
+      #   if: always() && github.event_name == 'push'
+      #   uses: foxundermoon/feishu-action@v2
+      #   with:
+      #     url: ${{ secrets.FEISHU_BOT_WEBHOOK_URL }}
+      #     msg_type: post
+      #     content: |
+      #       post:
+      #         zh_cn:
+      #           title: "项目构建结果: ${{ job.status == 'success' && '✅ 成功' || '❌ 失败' }}"
+      #           content:
+      #             - - tag: text
+      #                 text: "📦 仓库: "
+      #               - tag: text
+      #                 text: "${{ github.repository }}"
+      #             - - tag: text
+      #                 text: "\n🔨 分支: "
+      #               - tag: text
+      #                 text: "${{ github.ref_name }}"
+      #             - - tag: text
+      #                 text: "\n👤 提交人: "
+      #               - tag: text
+      #                 text: "${{ github.actor }}"
+      #             - - tag: text
+      #                 text: "\n📝 提交信息: "
+      #               - tag: text
+      #                 text: "${{ github.event.head_commit.message }}"
+      #             - - tag: text
+      #                 text: "\n--------------------------------"
+      #             - - tag: a
+      #                 text: "🔍 查看完整流水线详情"
+      #                 # 关键修复点：这里的分隔符和括号现在是正确的了
+      #                 href: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
       - name: Notify Issue Update
         if: github.event_name == 'issues'
