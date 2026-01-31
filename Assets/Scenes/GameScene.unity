@@ -1380,7 +1380,7 @@ MonoBehaviour:
   speedScale: 1
   suShiPrefab: {fileID: 1165752144022230379, guid: 8a615b11d3e0a664f95c25a7957086f6, type: 3}
   fishSprites: []
-  belt: {fileID: 0}
+  belt: {fileID: 1118482381}
 --- !u!4 &1816594894
 Transform:
   m_ObjectHideFlags: 0
