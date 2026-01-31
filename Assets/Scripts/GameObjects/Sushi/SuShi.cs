@@ -13,6 +13,7 @@ public class SuShi : MonoBehaviour
     public int lvl = 0;
     public int bonus = 150;
     public List<Sprite> fishSprites;
+    public bool hasAdd= false;
 
     // Start is called before the first frame update
     void Start()
@@ -24,5 +25,12 @@ public class SuShi : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void AddFish() {
+        if (hasAdd) return;
+        hasAdd = true;
+        Debug.Log("Add Fish!");
+        OnFishAdded.Invoke();
     }
 }

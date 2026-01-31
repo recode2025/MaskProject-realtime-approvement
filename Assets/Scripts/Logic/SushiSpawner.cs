@@ -11,8 +11,7 @@ public class SushiSpawner : MonoBehaviour
     public float targetTime = 0;
     public float curTime = 0;
     public float originSpeed = 6f;
-    [SerializeField] private SuShi suShiPreFab;
-    [SerializeField] private GameManager gameManager;
+    [SerializeField] private SuShi suShiPrefab;
 
     // Start is called before the first frame update
     void Start()
@@ -38,10 +37,11 @@ public class SushiSpawner : MonoBehaviour
     }
 
     protected void SpawnSushi () {
-        SuShi sushi = Instantiate<SuShi>(suShiPreFab, this.transform);
+        SuShi sushi = Instantiate<SuShi>(suShiPrefab, this.transform);
         sushi.GetComponent<Rigidbody2D>().velocity = Vector2.right * originSpeed;
         sushi.OnFishAdded += () => {
-            gameManager.sushiCount++;
+            GameManager.Instance.sushiCount++;
+            Debug.Log("cur sushiCount = " + GameManager.Instance.sushiCount);
         };
     }
 }
