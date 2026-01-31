@@ -1,25 +1,24 @@
 name: Unity Build (Windows & Android)
 
-# 1. 修复：添加触发器
 on:
   push:
-    branches:
-      - main    # 如果你的分支叫 master，请确保这里一致
+    branches: [main]
   pull_request:
-    branches:
-      - main
-  workflow_dispatch: # 允许你在 GitHub 网页手动点击 "Run workflow"
+    branches: [main]
+  workflow_dispatch:
 
-# 2. 可选优化：防止同一个分支多次提交导致构建任务堆积
-concurrency:
-  group: ${{ github.workflow }}-${{ matrix.targetPlatform }}-${{ github.ref }}
-  cancel-in-progress: true
-
+# 删掉了这里的全局 concurrency，因为它识别不到 matrix
 
 jobs:
   build:
     name: Build for ${{ matrix.targetPlatform }}
     runs-on: ubuntu-latest
+    
+    # 将 concurrency 移到这里，这样它就能识别 ${{ matrix.targetPlatform }} 了
+    concurrency:
+      group: ${{ github.workflow }}-${{ matrix.targetPlatform }}-${{ github.ref }}
+      cancel-in-progress: true
+
     strategy:
       fail-fast: false
       matrix:
@@ -38,7 +37,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: Library
-          key: Library-${{ matrix.targetPlatform }}-${{ github.run_id }} # 增加 run_id 保证缓存唯一性
+          key: Library-${{ matrix.targetPlatform }}-${{ hashFiles('Packages/manifest.json') }}
           restore-keys: |
             Library-${{ matrix.targetPlatform }}-
             Library-
@@ -47,16 +46,11 @@ jobs:
         if: matrix.targetPlatform == 'Android'
         uses: jlumbroso/free-disk-space@v1.3.1
 
-      # 处理中文版 Unity 版本号兼容性
-      - name: Normalize Unity Version (Remove c1 suffix)
+      - name: Normalize Unity Version
         run: |
-          if [ -f ProjectSettings/ProjectVersion.txt ]; then
-            sed -i 's/2022.3.48f1c1/2022.3.48f1/g' ProjectSettings/ProjectVersion.txt
-            echo "Version normalized to 2022.3.48f1"
-          else
-            echo "ProjectVersion.txt not found!"
-            exit 1
-          fi
+          sed -i 's/\([0-9]\{4\}\.[0-9]\+\.[0-9]\+f[0-9]\+\)c[0-9]\+/\1/g' ProjectSettings/ProjectVersion.txt
+          echo "Normalized Version:"
+          grep "m_EditorVersion" ProjectSettings/ProjectVersion.txt
 
       - name: Run Unity Builder
         uses: game-ci/unity-builder@v4
@@ -66,7 +60,6 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
-          unityVersion: 2022.3.48f1 # 强制匹配 Docker 镜像版本
           androidExportType: 'androidPackage'
           allowDirtyBuild: true
           
@@ -74,5 +67,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Build-${{ matrix.targetPlatform }}
-          path: build/${{ matrix.targetPlatform }}
-          retention-days: 7 # 产物保留 7 天，节省 GitHub 存储空间
+          path: build
+          retention-days: 7
