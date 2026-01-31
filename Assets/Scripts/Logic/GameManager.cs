@@ -28,7 +28,6 @@ public class GameManager : MonoBehaviour {
     // 游戏数据
     public GameData gameData;
 
-<<<<<<< HEAD
     [Header("调试选项")]
     [Tooltip("勾选此项，下次运行游戏时会清除存档并重置金币和等级")]
     public bool resetSaveOnStart = true;
@@ -36,12 +35,7 @@ public class GameManager : MonoBehaviour {
     public int bonusLevel = 0;
     public int rateLevel = 0;
     public int spLevel = 0;
-    public int rewardLevel = 0;
-=======
-    public float bonusLevel = 0;
-    public float rateLevel = 0;
-    public float spLevel = 0;
-    public float specialBonusLevel = 0;
+    public int specialBonusLevel = 0;
 
     public List<float> baseBonus = new List<float> { 350f, 250f, 250f, 150f };
     public List<float> coefficient = new List<float> { 23f, 27f, 27f, 31f };
@@ -54,7 +48,6 @@ public class GameManager : MonoBehaviour {
     public float baseRatePrice = 2000;
     public float baseSpPrice = 2200;
     public float baseSpecialPrice = 2000;
->>>>>>> d5bf43e23f444b3ac1878c9f3e65d616f009bc81
 
     public enum UpgradeType {
         Bonus,
@@ -166,10 +159,9 @@ public class GameManager : MonoBehaviour {
         bonusLevel = gameData.bonusLevel;
         rateLevel = gameData.rateLevel;
         spLevel = gameData.spLevel;
-        rewardLevel = gameData.rewardLevel;
+        specialBonusLevel = gameData.specialBonusLevel;
 
-<<<<<<< HEAD
-        Debug.Log($"加载数据 - 最高金币: {maxMoney}, 持有金币: {gameData.coins}, 升级等级: [{bonusLevel},{rateLevel},{spLevel},{rewardLevel}]");
+        Debug.Log($"加载数据 - 最高金币: {maxMoney}, 持有金币: {gameData.coins}, 升级等级: [{bonusLevel},{rateLevel},{spLevel},{specialBonusLevel}]");
 
         // [测试专用] 如果金币不足，自动补充，方便测试扣费
         if (gameData.coins < 1000)
@@ -178,14 +170,6 @@ public class GameManager : MonoBehaviour {
             Debug.Log($"[测试助手] 检测到金币不足，已自动为您补充到 {gameData.coins} 以便测试商店功能！");
             SaveGameData(); // 保存修改
         }
-=======
-        bonusLevel = gameData.bonusLevel;
-        rateLevel = gameData.rateLevel;
-        spLevel = gameData.spLevel;
-        specialBonusLevel = gameData.specialBonusLevel;
-
-        Debug.Log($"加载数据 - 最高金币: {maxMoney}, 最高寿司数: {maxSushiCount}");
->>>>>>> d5bf43e23f444b3ac1878c9f3e65d616f009bc81
     }
 
     /// <summary>
@@ -211,7 +195,7 @@ public class GameManager : MonoBehaviour {
         gameData.bonusLevel = bonusLevel;
         gameData.rateLevel = rateLevel;
         gameData.spLevel = spLevel;
-        gameData.rewardLevel = rewardLevel;
+        gameData.specialBonusLevel = specialBonusLevel;
 
         gameData.bonusLevel = bonusLevel;
         gameData.rateLevel = rateLevel;
@@ -262,7 +246,7 @@ public class GameManager : MonoBehaviour {
         bonusLevel = 0;
         rateLevel = 0;
         spLevel = 0;
-        rewardLevel = 0;
+        specialBonusLevel = 0;
 
         Debug.Log($"存档已重置，已发放初始测试金币: {GameBalance.InitialCoins}，所有等级重置为 0 (UI显示为Lv1)");
         
@@ -293,7 +277,7 @@ public class GameManager : MonoBehaviour {
                 break;
             case UpgradeType.Reward:
                 basePrice = GameBalance.BaseRewardPrice;
-                currentLevel = rewardLevel;
+                currentLevel = specialBonusLevel;
                 break;
         }
 
@@ -313,14 +297,14 @@ public class GameManager : MonoBehaviour {
                 case UpgradeType.Bonus: bonusLevel++; break;
                 case UpgradeType.Rate: rateLevel++; break;
                 case UpgradeType.Sp: spLevel++; break;
-                case UpgradeType.Reward: rewardLevel++; break;
+                case UpgradeType.Reward: specialBonusLevel++; break;
             }
             
             // 同步回 gameData 并保存
             gameData.bonusLevel = bonusLevel;
             gameData.rateLevel = rateLevel;
             gameData.spLevel = spLevel;
-            gameData.rewardLevel = rewardLevel;
+            gameData.specialBonusLevel = specialBonusLevel;
             
             SaveGameData();
             Debug.Log($"购买成功: {type}, 新等级: {GetLevel(type)}, 剩余金币: {gameData.coins}");
@@ -336,7 +320,7 @@ public class GameManager : MonoBehaviour {
             case UpgradeType.Bonus: return bonusLevel;
             case UpgradeType.Rate: return rateLevel;
             case UpgradeType.Sp: return spLevel;
-            case UpgradeType.Reward: return rewardLevel;
+            case UpgradeType.Reward: return specialBonusLevel;
             default: return 0;
         }
     }
@@ -354,7 +338,7 @@ public class GameManager : MonoBehaviour {
     }
 
     public float GetSpecialBonus() {
-        return (float)(GameBalance.BaseReward * Math.Pow(1.03, rewardLevel));
+        return (float)(GameBalance.BaseReward * Math.Pow(1.03, specialBonusLevel));
     }
 
     public void InitRate() {

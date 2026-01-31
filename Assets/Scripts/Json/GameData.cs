@@ -15,7 +15,7 @@ public class GameData
     public int bonusLevel = 0;
     public int rateLevel = 0;
     public int spLevel = 0;
-    public int rewardLevel = 0;
+    public int specialBonusLevel = 0;
 
     // 可以添加更多需要保存的数据
     public string lastPlayTime = ""; // 最后游玩时间
@@ -32,6 +32,6 @@ public class GameData
         bonusLevel = 0;
         rateLevel = 0;
         spLevel = 0;
-        rewardLevel = 0;
+        specialBonusLevel = 0;
     }
 }
