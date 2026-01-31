@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SuShi : MonoBehaviour {
     public GameObject rice;
@@ -11,12 +12,6 @@ public class SuShi : MonoBehaviour {
     public int type = 0;
     public float bonus = 350;
     public bool hasAdd = false;
-
-    public Sprite sprite;
-
-    void Awake() {
-        sprite = GetComponent<Sprite>();
-    }
 
     // Start is called before the first frame update
     void Start() {

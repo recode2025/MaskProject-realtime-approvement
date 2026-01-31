@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SushiSpawner : MonoBehaviour {
 
@@ -63,7 +64,7 @@ public class SushiSpawner : MonoBehaviour {
 
     protected void SetSushiType(SuShi sushi, int type) {
         sushi.type = type;
-        if (type < this.fishSprites.Count && this.fishSprites[type] != null) sushi.sprite = this.fishSprites[type];
+        if (type < this.fishSprites.Count && this.fishSprites[type] != null) sushi.rice.GetComponent<Image>().sprite = this.fishSprites[type];
         sushi.bonus = GameManager.Instance.GetBonus(type);
     }
 }
