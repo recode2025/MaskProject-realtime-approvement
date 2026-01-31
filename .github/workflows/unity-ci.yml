@@ -1,3 +1,4 @@
+# Test action
 name: Test package
 
 on: [push, pull_request]
