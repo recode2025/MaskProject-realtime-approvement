@@ -12,6 +12,9 @@ public class TraceObject : MonoBehaviour
             if (TraceSuShi) {
                 TraceSuShi.AddFish();
             }
+            else {
+                GameManager.Instance.Miss();
+            }
         };
     }
 
