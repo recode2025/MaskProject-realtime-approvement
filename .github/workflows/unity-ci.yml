@@ -9,9 +9,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # 1. 既然是根目录，这里直接写 .
         projectPath:
-          - MASKPROJECT
-        # 这里必须是国际版格式，确保能拉到 Docker 镜像
+          - .
+        # 2. 必须用国际版版本号，确保能拉取 Docker 镜像
         unityVersion: ['2022.3.48f1'] 
         testMode:
           - playmode
@@ -22,17 +23,18 @@ jobs:
         with:
           lfs: true
 
-      # 【新增：核心修复脚本】
-      # 强行把 ProjectVersion.txt 里的 c1 删掉，欺骗国际版 Unity 编辑器
+      # 3. 核心修复：针对中国版 Unity 的 c1 后缀进行“欺骗”
+      # 因为项目在根目录，直接处理 ./ProjectSettings/ProjectVersion.txt
       - name: Fix Unity China Version Suffix
         run: |
-          VERSION_FILE="${{ matrix.projectPath }}/ProjectSettings/ProjectVersion.txt"
+          VERSION_FILE="./ProjectSettings/ProjectVersion.txt"
           if [ -f "$VERSION_FILE" ]; then
-            echo "Before fix: $(grep 'm_EditorVersion' $VERSION_FILE)"
+            echo "修改前: $(grep 'm_EditorVersion' $VERSION_FILE)"
             sed -i 's/c[0-9]*//g' "$VERSION_FILE"
-            echo "After fix: $(grep 'm_EditorVersion' $VERSION_FILE)"
+            echo "修改后: $(grep 'm_EditorVersion' $VERSION_FILE)"
           else
-            echo "Warning: ProjectVersion.txt not found at $VERSION_FILE"
+            echo "错误：在根目录未找到 ProjectSettings/ProjectVersion.txt"
+            exit 1
           fi
 
       - uses: game-ci/unity-test-runner@v4
@@ -43,13 +45,18 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           packageMode: false
+          # 这里引用 matrix 里的点号
           projectPath: ${{ matrix.projectPath }}
           unityVersion: ${{ matrix.unityVersion }}
           testMode: ${{ matrix.testMode }}
           artifactsPath: ${{ matrix.testMode }}-artifacts
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          checkName: ${{ matrix.testMode }} Test Results
-          # 加上 -nographics 避开显卡驱动报错，加上详细日志重定向
+          # 关键：确保日志输出到控制台，方便查看后续可能出现的代码报错
           customParameters: "-nographics -logfile /dev/stdout"
 
-      # 下面的 Upload 步骤保持不变...
+      - name: Upload Test Results
+        if: always() && steps.tests.outputs.artifactsPath != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test-results-for-${{ matrix.testMode }}
+          path: ${{ matrix.testMode }}-artifacts
