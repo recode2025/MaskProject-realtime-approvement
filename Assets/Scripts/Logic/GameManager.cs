@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour {
+public class GameManager : MonoBehaviour
+{
     // 单例模式
     public static GameManager Instance { get; private set; }
 
@@ -17,7 +18,7 @@ public class GameManager : MonoBehaviour {
 
     public float specialPointCD = 1.0f;
     public float curSPCD = 0;
-    
+
     // 历史统计
     public int maxMoney = 0; // 历史最高赚取的货币
     public int maxSushiCount = 0; // 历史最高的寿司数量
@@ -48,7 +49,8 @@ public class GameManager : MonoBehaviour {
     public float baseSpPrice = 2200;
     public float baseSpecialPrice = 2000;
 
-    public enum UpgradeType {
+    public enum UpgradeType
+    {
         Bonus,
         Rate,
         Sp,
@@ -63,22 +65,27 @@ public class GameManager : MonoBehaviour {
     public event Action OnSpecialModeUpdated;
 
     // 获取当前时间的方法
-    public float GetCurrentTime() {
-        if (sushiSpawner != null) {
+    public float GetCurrentTime()
+    {
+        if (sushiSpawner != null)
+        {
             return sushiSpawner.curTime;
         }
         return 0f;
     }
 
     // 获取目标时间的方法
-    public float GetTargetTime() {
-        if (sushiSpawner != null) {
+    public float GetTargetTime()
+    {
+        if (sushiSpawner != null)
+        {
             return sushiSpawner.targetTime;
         }
         return 0f;
     }
 
-    void gameStart() {
+    void gameStart()
+    {
         /// <summary>
         /// 游戏开始
         /// </summary>
@@ -88,20 +95,24 @@ public class GameManager : MonoBehaviour {
 
         specialPoint = 130f;
         OnSpecialPointUpdated?.Invoke(specialPoint);
-        if (sushiSpawner != null) {
+        if (sushiSpawner != null)
+        {
             sushiSpawner.isOn = true;
         }
         // 此处再次唤醒游戏逻辑
     }
 
 
-    void Awake() {
+    void Awake()
+    {
         // 单例模式实现
-        if (Instance == null) {
+        if (Instance == null)
+        {
             Instance = this;
             DontDestroyOnLoad(gameObject); // 场景切换时不销毁
         }
-        else {
+        else
+        {
             Destroy(gameObject);
             return;
         }
@@ -115,16 +126,18 @@ public class GameManager : MonoBehaviour {
         {
             LoadGameData();
         }
-        
+
         // 强制检查：如果是第一次运行或者想强制重置，可以取消下面这行的注释
         // ResetSaveData(); 
     }
 
-    void Start() {
+    void Start()
+    {
 
     }
 
-    void Update() {
+    void Update()
+    {
         //if (curSPCD >= specialPointCD) {
         //    curSPCD = 0;
         //    Debug.Log($"specialPoint = {specialPoint} specialMode = {isSpecialMode}");
@@ -153,11 +166,12 @@ public class GameManager : MonoBehaviour {
     /// <summary>
     /// 加载游戏数据
     /// </summary>
-    public void LoadGameData() {
+    public void LoadGameData()
+    {
         gameData = JsonDataManager.LoadData();
         maxMoney = gameData.maxMoney;
         maxSushiCount = gameData.maxSushiCount;
-        
+
         bonusLevel = gameData.bonusLevel;
         rateLevel = gameData.rateLevel;
         spLevel = gameData.spLevel;
@@ -177,13 +191,16 @@ public class GameManager : MonoBehaviour {
     /// <summary>
     /// 保存游戏数据
     /// </summary>
-    public void SaveGameData() {
+    public void SaveGameData()
+    {
         // 更新历史最高记录
-        if (Money > maxMoney) {
+        if (Money > maxMoney)
+        {
             maxMoney = Money;
         }
 
-        if (sushiCount > maxSushiCount) {
+        if (sushiCount > maxSushiCount)
+        {
             maxSushiCount = sushiCount;
         }
 
@@ -192,7 +209,7 @@ public class GameManager : MonoBehaviour {
         gameData.maxSushiCount = maxSushiCount;
         gameData.lastPlayTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         gameData.totalGamesPlayed++;
-        
+
         // 保存升级数据
         gameData.bonusLevel = bonusLevel;
         gameData.rateLevel = rateLevel;
@@ -213,14 +230,17 @@ public class GameManager : MonoBehaviour {
     /// <summary>
     /// 游戏结束时调用
     /// </summary>
-    public void GameOver() {
+    public void GameOver()
+    {
         // 停止生成寿司
-        if (sushiSpawner != null) {
+        if (sushiSpawner != null)
+        {
             sushiSpawner.isOn = false;
         }
 
         // 结算金币到钱包
-        if (gameData != null) {
+        if (gameData != null)
+        {
             gameData.coins += Money;
         }
 
@@ -236,13 +256,14 @@ public class GameManager : MonoBehaviour {
     /// 重置存档（用于测试或清除数据）
     /// </summary>
     [ContextMenu("强制重置存档(ResetSave)")]
-    public void ResetSaveData() {
+    public void ResetSaveData()
+    {
         JsonDataManager.DeleteSaveFile();
         gameData = new GameData();
-        
+
         // 测试模式：给予初始金币
         gameData.coins = GameBalance.InitialCoins;
-        
+
         maxMoney = 0;
         maxSushiCount = 0;
         bonusLevel = 0;
@@ -251,7 +272,7 @@ public class GameManager : MonoBehaviour {
         specialBonusLevel = 0;
 
         Debug.Log($"存档已重置，已发放初始测试金币: {GameBalance.InitialCoins}，所有等级重置为 0 (UI显示为Lv1)");
-        
+
         // 立即保存一次，确保初始金币被写入
         SaveGameData();
     }
@@ -260,11 +281,13 @@ public class GameManager : MonoBehaviour {
     /// 获取升级价格
     /// 默认价格增长公式：BasePrice * (1.15 ^ Level)
     /// </summary>
-    public int GetUpgradePrice(UpgradeType type) {
+    public int GetUpgradePrice(UpgradeType type)
+    {
         float basePrice = 0;
         int currentLevel = 0;
 
-        switch (type) {
+        switch (type)
+        {
             case UpgradeType.Bonus:
                 basePrice = GameBalance.BaseBonusPrice;
                 currentLevel = bonusLevel;
@@ -289,36 +312,41 @@ public class GameManager : MonoBehaviour {
     /// <summary>
     /// 尝试购买升级
     /// </summary>
-    public bool BuyUpgrade(UpgradeType type) {
+    public bool BuyUpgrade(UpgradeType type)
+    {
         int price = GetUpgradePrice(type);
-        
-        if (gameData.coins >= price) {
+
+        if (gameData.coins >= price)
+        {
             gameData.coins -= price;
-            
-            switch (type) {
+
+            switch (type)
+            {
                 case UpgradeType.Bonus: bonusLevel++; break;
                 case UpgradeType.Rate: rateLevel++; break;
                 case UpgradeType.Sp: spLevel++; break;
                 case UpgradeType.Reward: specialBonusLevel++; break;
             }
-            
+
             // 同步回 gameData 并保存
             gameData.bonusLevel = bonusLevel;
             gameData.rateLevel = rateLevel;
             gameData.spLevel = spLevel;
             gameData.specialBonusLevel = specialBonusLevel;
-            
+
             SaveGameData();
             Debug.Log($"购买成功: {type}, 新等级: {GetLevel(type)}, 剩余金币: {gameData.coins}");
             return true;
         }
-        
+
         Debug.Log($"购买失败: 金币不足。需要 {price}, 拥有 {gameData.coins}", this);
         return false;
     }
-    
-    public int GetLevel(UpgradeType type) {
-        switch (type) {
+
+    public int GetLevel(UpgradeType type)
+    {
+        switch (type)
+        {
             case UpgradeType.Bonus: return bonusLevel;
             case UpgradeType.Rate: return rateLevel;
             case UpgradeType.Sp: return spLevel;
@@ -327,48 +355,59 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    public float GetBonus(int type) {
+    public float GetBonus(int type)
+    {
         return (float)(GameBalance.BaseBonus[type] + GameBalance.Coefficient[type] * Math.Pow(bonusLevel, 0.7));
     }
 
-    public float GetRate(int type) {
+    public float GetRate(int type)
+    {
         return (float)(GameBalance.BaseRate[type] + (GameBalance.MaxRate[type] - GameBalance.BaseRate[type]) * (1 - 1 / (1 + 0.25 * rateLevel)));
     }
 
-    public float GetSp() {
+    public float GetSp()
+    {
         return (float)(GameBalance.BaseSp + 0.8 * Math.Pow(spLevel, 0.5));
     }
 
-    public float GetSpecialBonus() {
+    public float GetSpecialBonus()
+    {
         return (float)(GameBalance.BaseReward * Math.Pow(1.03, specialBonusLevel));
     }
 
-    public void InitRate() {
+    public void InitRate()
+    {
         rates = new List<float>();
         total = 0;
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < 4; ++i)
+        {
             float rate = GetRate(i);
             rates.Add(rate);
             total += rate;
         }
     }
 
-    public int GetSuShiType() {
+    public int GetSuShiType()
+    {
         if (rates == null || rates.Count == 0) InitRate();
         float r = UnityEngine.Random.Range(0, 1f) * total;
-        for (int i = 0; i < rates.Count; ++i) {
-            if (r < rates[i]) {
+        for (int i = 0; i < rates.Count; ++i)
+        {
+            if (r < rates[i])
+            {
                 return i;
             }
         }
         return 0;
     }
 
-    public void Miss() {
+    public void Miss()
+    {
         combo = 0;
         OnComboUpdated?.Invoke(combo);
 
-        if (!isSpecialMode) {
+        if (!isSpecialMode)
+        {
             Money = Math.Max(0, Money - 500);
             OnMoneyUpdated?.Invoke(Money);
 
@@ -377,12 +416,14 @@ public class GameManager : MonoBehaviour {
         }
 
 
-        if (Money == 0) {
+        if (Money == 0)
+        {
             GameOver();
         }
     }
 
-    public void Success(float bonus) {
+    public void Success(float bonus)
+    {
         ++sushiCount;
 
         ++combo;
@@ -391,12 +432,14 @@ public class GameManager : MonoBehaviour {
         Money += (int)Math.Round(isSpecialMode ? GetSpecialBonus() : bonus);
         OnMoneyUpdated?.Invoke(Money);
 
-        if (!isSpecialMode) {
+        if (!isSpecialMode)
+        {
             specialPoint = specialPoint + GetSp();
             OnSpecialPointUpdated?.Invoke(specialPoint);
         }
 
-        if (combo % 100 == 0) {
+        if (combo % 100 == 0)
+        {
             moneyScale = Math.Min(1.5f, moneyScale + 0.1f);
         }
     }
