@@ -81,16 +81,6 @@ jobs:
                 title: "Unity ${{ matrix.testMode }} 测试反馈"
                 content:
                   - - tag: text
-                      text: "结果状态: ${{ job.status == 'success' && '✅ 成功' || '❌ 失败' }}\n"
-                  - - tag: text
-                      text: "📊 测试统计:\n"
-                  - - tag: text
-                      text: "  - 总计: ${{ steps.tests.outputs.total || 'N/A' }}\n"
-                  - - tag: text
-                      text: "  - 通过: ${{ steps.tests.outputs.passed || 'N/A' }}\n"
-                  - - tag: text
-                      text: "  - 失败: ${{ steps.tests.outputs.failed || 'N/A' }}\n"
-                  - - tag: text
                       text: "--------------------------------\n"
                   - - tag: a
                       text: "🔍 查看 GitHub 详细测试报告"
