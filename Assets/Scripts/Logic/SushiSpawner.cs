@@ -10,7 +10,7 @@ public class SushiSpawner : MonoBehaviour
     public float maxTime = 5;
     public float targetTime = 0;
     public float curTime = 0;
-
+    public SuShi suShiPreFab;
     // Start is called before the first frame update
     void Start()
     {
@@ -28,12 +28,14 @@ public class SushiSpawner : MonoBehaviour
             if (curTime>=targetTime) {
                 targetTime = UnityEngine.Random.Range(minTime, maxTime);
                 curTime = 0;
+                SpawnSushi();
             }
             curTime += Time.fixedDeltaTime;
         }
     }
 
     protected void SpawnSushi () {
-        
+        SuShi sushi = Instantiate<SuShi>(suShiPreFab, this.transform);
+        sushi.GetComponent<Rigidbody2D>().AddForce(Vector2.right * 10);
     }
 }
