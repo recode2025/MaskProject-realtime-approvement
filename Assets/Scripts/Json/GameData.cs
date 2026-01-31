@@ -13,12 +13,21 @@ public class GameData
     // 可以添加更多需要保存的数据
     public string lastPlayTime = ""; // 最后游玩时间
     public int totalGamesPlayed = 0; // 总游戏次数
-    
+
+    public float bonusLevel = 0;
+    public float rateLevel = 0;
+    public float spLevel = 0;
+    public float specialBonusLevel = 0;
+
     public GameData()
     {
         maxMoney = 0;
         maxSushiCount = 0;
         lastPlayTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         totalGamesPlayed = 0;
+        bonusLevel = 0;
+        rateLevel = 0;
+        spLevel = 0;
+        specialBonusLevel = 0;
     }
 }

@@ -41,7 +41,7 @@ public class SushiSpawner : MonoBehaviour {
         Debug.Log($"sushi Type = {sushi.type}");
         sushi.GetComponent<Rigidbody2D>().velocity = Vector2.right * originSpeed;
         sushi.OnFishAdded += () => {
-            GameManager.Instance.sushiCount++;
+            GameManager.Instance.Success(sushi.bonus);
             Debug.Log("cur sushiCount = " + GameManager.Instance.sushiCount);
         };
     }

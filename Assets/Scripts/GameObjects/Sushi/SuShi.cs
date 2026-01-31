@@ -31,10 +31,14 @@ public class SuShi : MonoBehaviour
         
     }
 
+    public void DoAddFish() {
+        Destroy(fish);
+    }
+
     public void AddFish() {
         if (hasAdd) return;
         hasAdd = true;
-        Destroy(fish);
+        DoAddFish();
         Debug.Log("Add Fish!");
         OnFishAdded.Invoke();
     }

@@ -9,9 +9,16 @@ public class GameManager : MonoBehaviour {
 
     // 游戏时
     public int Money = 0; // 赚取的货币
+    public float moneyScale = 1.0f;
     public int sushiCount = 0; // 寿司的数量
-    public bool isHappy = false; // 是否开心
+    public int combo = 0;
+    public bool isSpecialMode = false; // 是否开心
+    public float specialPoint = 0;
+    public float bonusPoint = 0;
 
+    public float specialPointCD = 1.0f;
+    public float curSPCD = 0;
+    
     // 历史统计
     public int maxMoney = 0; // 历史最高赚取的货币
     public int maxSushiCount = 0; // 历史最高的寿司数量
@@ -24,22 +31,28 @@ public class GameManager : MonoBehaviour {
     public float bonusLevel = 0;
     public float rateLevel = 0;
     public float spLevel = 0;
-    public float rewardLevel = 0;
+    public float specialBonusLevel = 0;
 
     public List<float> baseBonus = new List<float> { 350f, 250f, 250f, 150f };
     public List<float> coefficient = new List<float> { 23f, 27f, 27f, 31f };
     public List<float> baseRate = new List<float> { 10f, 15f, 30f, 45f };
     public List<float> maxRate = new List<float> { 45f, 30f, 15f, 10f };
     public float baseSp = 1f;
-    public float baseReward = 1f;
+    public float baseSpecialBonus = 1f;
 
     public float baseBonusPrice = 1800;
     public float baseRatePrice = 2000;
     public float baseSpPrice = 2200;
-    public float baseRewardPrice = 2000;
+    public float baseSpecialPrice = 2000;
 
     private List<float> rates;
     private float total = 0;
+
+    public event Action OnComboUpdated;
+    public event Action OnMoneyUpdated;
+    public event Action OnPointUpdated;
+    public event Action OnSpecialPointUpdated;
+    public event Action OnSpecialModeUpdated;
 
     // 获取当前时间的方法
     public float GetCurrentTime() {
@@ -90,7 +103,27 @@ public class GameManager : MonoBehaviour {
     }
 
     void Update() {
+        curSPCD += Time.fixedTime;
+        if (curSPCD >= specialPointCD) {
+            if (isSpecialMode) {
+                specialPoint = Math.Max(0, specialPoint - 1);
+                OnSpecialPointUpdated.Invoke();
 
+                if (specialPoint == 0) {
+                    isSpecialMode = false;
+                    OnSpecialModeUpdated.Invoke();
+                }
+            }
+            else {
+                specialPoint += GetSp();
+                OnSpecialPointUpdated.Invoke();
+
+                if (specialPoint >= 200) {
+                    isSpecialMode = true;
+                    OnSpecialModeUpdated.Invoke();
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -100,6 +133,11 @@ public class GameManager : MonoBehaviour {
         gameData = JsonDataManager.LoadData();
         maxMoney = gameData.maxMoney;
         maxSushiCount = gameData.maxSushiCount;
+
+        bonusLevel = gameData.bonusLevel;
+        rateLevel = gameData.rateLevel;
+        spLevel = gameData.spLevel;
+        specialBonusLevel = gameData.specialBonusLevel;
 
         Debug.Log($"加载数据 - 最高金币: {maxMoney}, 最高寿司数: {maxSushiCount}");
     }
@@ -123,10 +161,15 @@ public class GameManager : MonoBehaviour {
         gameData.lastPlayTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         gameData.totalGamesPlayed++;
 
+        gameData.bonusLevel = bonusLevel;
+        gameData.rateLevel = rateLevel;
+        gameData.spLevel = spLevel;
+        gameData.specialBonusLevel = specialBonusLevel;
+
         // 保存到JSON文件
         JsonDataManager.SaveData(gameData);
 
-        Debug.Log($"保存数据 - 最高金币: {maxMoney}, 最高寿司数: {maxSushiCount}");
+        Debug.Log($"保存数据 - 最高金币: {maxMoney}, 最高寿司数: {maxSushiCount} bonusLevel = {bonusLevel} rateLevel = {rateLevel} spLevel = {spLevel} specialBonusLevel = {specialBonusLevel}");
     }
 
     /// <summary>
@@ -170,8 +213,8 @@ public class GameManager : MonoBehaviour {
         return (float)(baseSp + 0.8 * Math.Pow(spLevel, 0.5));
     }
 
-    public float GetReward() {
-        return (float)(baseReward * Math.Pow(1.03, rewardLevel));
+    public float GetSpecialBonus() {
+        return (float)(baseSpecialBonus * Math.Pow(1.03, specialBonusLevel));
     }
 
     public void InitRate() {
@@ -193,5 +236,37 @@ public class GameManager : MonoBehaviour {
             }
         }
         return 0;
+    }
+
+    public void Miss() {
+        combo = 0;
+        OnComboUpdated.Invoke();
+
+        if (!isSpecialMode) {
+            Money = Math.Max(0, Money - 500);
+            OnMoneyUpdated.Invoke();
+
+            specialPoint = Math.Min(0, specialPoint - 40);
+            OnSpecialPointUpdated.Invoke();
+        }
+
+
+        if (Money == 0) {
+            GameOver();
+        }
+    }
+
+    public void Success(float bonus) {
+        ++sushiCount;
+
+        ++combo;
+        OnComboUpdated.Invoke();
+
+        bonusPoint += isSpecialMode ? GetSpecialBonus() : bonus;
+        OnPointUpdated.Invoke();
+
+        if (combo % 100 == 0) {
+            moneyScale = Math.Min(1.5f, moneyScale + 0.1f);
+        }
     }
 }
