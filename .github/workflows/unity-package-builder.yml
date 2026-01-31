@@ -49,10 +49,8 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: Android
-          buildMethod: BuildCommand.SetConfig
           androidExportType: androidPackage
           allowDirtyBuild: true
-          customParameters: -projectConfig "PlayerSettings.applicationIdentifier=com.DefaultCompany.MaskProject"
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
