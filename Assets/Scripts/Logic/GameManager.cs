@@ -84,7 +84,7 @@ public class GameManager : MonoBehaviour {
         /// <summary>
         /// 游戏开始
         /// </summary>
-        Money = 0;
+        Money = 1000;
         sushiCount = 0;
         if (sushiSpawner != null) {
             sushiSpawner.isOn = true;
