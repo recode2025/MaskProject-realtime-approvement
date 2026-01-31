@@ -28,7 +28,10 @@ public class SuShi : MonoBehaviour {
     }
 
     public void AddFish() {
-        if (hasAdd) return;
+        if (hasAdd) {
+            GameManager.Instance.Miss();
+            return;
+        }
         hasAdd = true;
         DoAddFish();
         Debug.Log("Add Fish!");
@@ -36,6 +39,6 @@ public class SuShi : MonoBehaviour {
     }
 
     private void OnDestroy() {
-        if (!hasAdd) GameManager.Instance.Miss();
+        //if (!hasAdd) GameManager.Instance.Miss();
     }
 }

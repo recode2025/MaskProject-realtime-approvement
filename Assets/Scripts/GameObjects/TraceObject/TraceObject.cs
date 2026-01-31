@@ -30,6 +30,9 @@ public class TraceObject : MonoBehaviour
             }
         }
         else {
+            if (TraceSuShi != null && !TraceSuShi.hasAdd) {
+                GameManager.Instance.Miss();
+            }
             TraceSuShi = null;
             //Debug.Log($"hit = Nothing");
         }
