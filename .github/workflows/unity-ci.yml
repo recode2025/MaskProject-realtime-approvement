@@ -82,10 +82,7 @@ jobs:
                 content:
                   - - tag: text
                       text: "结果状态: ${{ job.status == 'success' && '✅ 成功' || '❌ 失败' }}\n"
-<<<<<<< HEAD
-=======
                   - - tag: text
->>>>>>> 528e95fd9d1e826cedc0f956c91aedc6ab729357
                       text: "--------------------------------\n"
                   - - tag: a
                       text: "🔍 查看 GitHub 详细测试报告"
