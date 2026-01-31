@@ -56,6 +56,13 @@ public class InputSystem : MonoBehaviour
         
         LoadInputSettings();
         
+        // 自动适配移动平台
+        if (Application.isMobilePlatform)
+        {
+            currentInputMode = InputMode.Touch;
+            Debug.Log("[InputSystem] 检测到移动平台，自动切换为 Touch 模式");
+        }
+        
         if (showDebugLog)
         {
             Debug.Log($"[InputSystem] 当前设置 - 模式: {currentInputMode}, 按键: {keyboardKey}");
@@ -95,13 +102,10 @@ public class InputSystem : MonoBehaviour
     /// </summary>
     private bool DetectTouchInput()
     {
-        // 鼠标左键点击（PC端测试）
-        if (Input.GetMouseButtonDown(0))
-        {
-            return true;
-        }
-        
-        // 触摸输入（移动端）
+        // 检查是否点击在 UI 上（防止误触）
+        if (IsPointerOverUI()) return false;
+
+        // 触摸输入（移动端优先）
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
@@ -110,8 +114,30 @@ public class InputSystem : MonoBehaviour
                 return true;
             }
         }
+        // 鼠标左键点击（PC端测试/编辑器）
+        else if (Input.GetMouseButtonDown(0))
+        {
+            return true;
+        }
         
         return false;
+    }
+
+    /// <summary>
+    /// 检查是否点击在 UI 上
+    /// </summary>
+    private bool IsPointerOverUI()
+    {
+        if (UnityEngine.EventSystems.EventSystem.current == null) return false;
+
+        // 移动端触摸检测
+        if (Input.touchCount > 0)
+        {
+            return UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId);
+        }
+        
+        // PC/编辑器鼠标检测
+        return UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
     }
     
     /// <summary>

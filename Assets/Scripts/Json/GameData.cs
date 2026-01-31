@@ -19,7 +19,7 @@ public class GameData
 
     // 可以添加更多需要保存的数据
     public string lastPlayTime = ""; // 最后游玩时间
-    public int totalGamesPlayed = 0; // 总游戏次数
+    public int totalGamesPlayed = 0;
 
     public GameData()
     {

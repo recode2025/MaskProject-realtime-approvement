@@ -137,7 +137,7 @@ public class GameManager : MonoBehaviour {
                 specialPoint += GetSp();
                 OnSpecialPointUpdated?.Invoke();
 
-                if (specialPoint >= GameBalance.MaxSp) {
+                if (specialPoint >= 200) {
                     isSpecialMode = true;
                     OnSpecialModeUpdated?.Invoke();
                 }
