@@ -8,12 +8,12 @@ public class GameManager : MonoBehaviour {
     public static GameManager Instance { get; private set; }
 
     // 游戏时
-    public int Money = 0; // 赚取的货币
+    public int Money = 1000; // 赚取的货币
     public float moneyScale = 1.0f;
     public int sushiCount = 0; // 寿司的数量
     public int combo = 0;
     public bool isSpecialMode = false; // 是否开心
-    public float specialPoint = 0;
+    public float specialPoint = 130f;
 
     public float specialPointCD = 1.0f;
     public float curSPCD = 0;
@@ -57,9 +57,9 @@ public class GameManager : MonoBehaviour {
     private List<float> rates;
     private float total = 0;
 
-    public event Action OnComboUpdated;
-    public event Action OnMoneyUpdated;
-    public event Action OnSpecialPointUpdated;
+    public event Action<int> OnComboUpdated;
+    public event Action<int> OnMoneyUpdated;
+    public event Action<float> OnSpecialPointUpdated;
     public event Action OnSpecialModeUpdated;
 
     // 获取当前时间的方法
@@ -83,7 +83,11 @@ public class GameManager : MonoBehaviour {
         /// 游戏开始
         /// </summary>
         Money = 1000;
+        OnMoneyUpdated?.Invoke(Money);
         sushiCount = 0;
+
+        specialPoint = 130f;
+        OnSpecialPointUpdated?.Invoke(specialPoint);
         if (sushiSpawner != null) {
             sushiSpawner.isOn = true;
         }
@@ -121,29 +125,29 @@ public class GameManager : MonoBehaviour {
     }
 
     void Update() {
-        if (curSPCD >= specialPointCD) {
-            curSPCD = 0;
-            Debug.Log($"specialPoint = {specialPoint} specialMode = {isSpecialMode}");
-            if (isSpecialMode) {
-                specialPoint = Math.Max(0, specialPoint - 1);
-                OnSpecialPointUpdated?.Invoke();
+        //if (curSPCD >= specialPointCD) {
+        //    curSPCD = 0;
+        //    Debug.Log($"specialPoint = {specialPoint} specialMode = {isSpecialMode}");
+        //    if (isSpecialMode) {
+        //        specialPoint = Math.Max(0, specialPoint - 1);
+        //        OnSpecialPointUpdated?.Invoke(specialPoint);
 
-                if (specialPoint == 0) {
-                    isSpecialMode = false;
-                    OnSpecialModeUpdated?.Invoke();
-                }
-            }
-            else {
-                specialPoint += GetSp();
-                OnSpecialPointUpdated?.Invoke();
+        //        if (specialPoint == 0) {
+        //            isSpecialMode = false;
+        //            OnSpecialModeUpdated?.Invoke();
+        //        }
+        //    }
+        //    else {
+        //        specialPoint += GetSp();
+        //        OnSpecialPointUpdated?.Invoke(specialPoint);
 
-                if (specialPoint >= GameBalance.MaxSp) {
-                    isSpecialMode = true;
-                    OnSpecialModeUpdated?.Invoke();
-                }
-            }
-        }
-        curSPCD += Time.deltaTime;
+        //        if (specialPoint >= GameBalance.MaxSp) {
+        //            isSpecialMode = true;
+        //            OnSpecialModeUpdated?.Invoke();
+        //        }
+        //    }
+        //}
+        //curSPCD += Time.deltaTime;
     }
 
     /// <summary>
@@ -362,14 +366,14 @@ public class GameManager : MonoBehaviour {
 
     public void Miss() {
         combo = 0;
-        OnComboUpdated?.Invoke();
+        OnComboUpdated?.Invoke(combo);
 
         if (!isSpecialMode) {
             Money = Math.Max(0, Money - 500);
-            OnMoneyUpdated?.Invoke();
+            OnMoneyUpdated?.Invoke(Money);
 
             specialPoint = Math.Max(0, specialPoint - 40);
-            OnSpecialPointUpdated?.Invoke();
+            OnSpecialPointUpdated?.Invoke(specialPoint);
         }
 
 
@@ -382,10 +386,15 @@ public class GameManager : MonoBehaviour {
         ++sushiCount;
 
         ++combo;
-        OnComboUpdated?.Invoke();
+        OnComboUpdated?.Invoke(combo);
 
         Money += (int)Math.Round(isSpecialMode ? GetSpecialBonus() : bonus);
-        OnMoneyUpdated?.Invoke();
+        OnMoneyUpdated?.Invoke(Money);
+
+        if (!isSpecialMode) {
+            specialPoint = specialPoint + GetSp();
+            OnSpecialPointUpdated?.Invoke(specialPoint);
+        }
 
         if (combo % 100 == 0) {
             moneyScale = Math.Min(1.5f, moneyScale + 0.1f);
