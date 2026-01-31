@@ -1,10 +1,9 @@
 fileFormatVersion: 2
-guid: 30eb0e2348e37be41a8a58446ccc3c50
+guid: b80d0db53f06ab84a8273aaa3044701a
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences:
-  - suShiPrefab: {fileID: 493323748456620394, guid: 8a615b11d3e0a664f95c25a7957086f6, type: 3}
+  defaultReferences: []
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
