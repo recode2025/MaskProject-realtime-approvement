@@ -1,4 +1,4 @@
-name: Unity Build (Windows & Android)
+name: Unity Build (Android)
 
 on:
   push:
@@ -7,24 +7,14 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# 删掉了这里的全局 concurrency，因为它识别不到 matrix
-
 jobs:
-  build:
-    name: Build for ${{ matrix.targetPlatform }}
+  build-android:
+    name: Build Android
     runs-on: ubuntu-latest
-    
-    # 将 concurrency 移到这里，这样它就能识别 ${{ matrix.targetPlatform }} 了
-    concurrency:
-      group: ${{ github.workflow }}-${{ matrix.targetPlatform }}-${{ github.ref }}
-      cancel-in-progress: true
 
-    strategy:
-      fail-fast: false
-      matrix:
-        targetPlatform:
-          - StandaloneWindows64
-          - Android
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref_name }}-Android
+      cancel-in-progress: true
 
     steps:
       - name: Checkout Repository
@@ -37,13 +27,12 @@ jobs:
         uses: actions/cache@v3
         with:
           path: Library
-          key: Library-${{ matrix.targetPlatform }}-${{ hashFiles('Packages/manifest.json') }}
+          key: Library-Android-${{ hashFiles('Packages/manifest.json') }}
           restore-keys: |
-            Library-${{ matrix.targetPlatform }}-
+            Library-Android-
             Library-
 
-      - name: Free Disk Space (Android Only)
-        if: matrix.targetPlatform == 'Android'
+      - name: Free Disk Space
         uses: jlumbroso/free-disk-space@v1.3.1
 
       - name: Normalize Unity Version
@@ -59,14 +48,13 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
-          targetPlatform: ${{ matrix.targetPlatform }}
-          buildMethod: BuildCommand.SetConfig
-          androidExportType: 'androidPackage'
+          targetPlatform: Android
+          androidExportType: androidPackage
           allowDirtyBuild: true
-          
+
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Build-${{ matrix.targetPlatform }}
-          path: build
+          name: Build-Android
+          path: build/Android
           retention-days: 7
