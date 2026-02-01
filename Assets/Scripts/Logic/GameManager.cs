@@ -91,9 +91,10 @@ public class GameManager : MonoBehaviour {
         /// </summary>
         Money = 1000;
         OnMoneyChanged?.Invoke(Money);
-        sushiCount = 0;
-        specialPoint = 80f;
 
+        sushiCount = 0;
+
+        specialPoint = 80f;
         OnSpecialPointChanged?.Invoke(specialPoint);
         if (sushiSpawner != null) {
             sushiSpawner.isOn = true;
@@ -374,7 +375,8 @@ public class GameManager : MonoBehaviour {
             Money = Math.Max(0, Money - 500);
             OnMoneyChanged?.Invoke(Money);
 
-            specialPoint = Math.Max(0, specialPoint - 40);
+            specialPoint = Math.Min(GameBalance.MaxSp, Math.Max(0, specialPoint - 10));
+            Debug.Log($"SpecialPoint = {specialPoint}");
             OnSpecialPointChanged?.Invoke(specialPoint);
         }
 
@@ -397,7 +399,8 @@ public class GameManager : MonoBehaviour {
         OnMoneyChanged?.Invoke(Money);
 
         if (!isSpecialMode) {
-            specialPoint = specialPoint + GetSp();
+            specialPoint = Math.Min(GameBalance.MaxSp, Math.Max(0, specialPoint + GetSp()));
+            Debug.Log($"SpecialPoint = {specialPoint}");
             OnSpecialPointChanged?.Invoke(specialPoint);
         }
 

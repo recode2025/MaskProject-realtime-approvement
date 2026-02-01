@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,7 @@ using UnityEngine.UI;
 public class HUD : MonoBehaviour
 {
     [SerializeField] private Text CoinsCount;
+    [SerializeField] private Text SpCount;
     [SerializeField] private Scrollbar SpBar;
     [SerializeField] private Text ComboCount;
     [SerializeField] private Text Combo;
@@ -89,6 +91,7 @@ public class HUD : MonoBehaviour
         GameManager.Instance.OnSpecialPointChanged += (float specialPoint) =>
         {
             SpBar.size = specialPoint / GameBalance.MaxSp;
+            SpCount.text = $"{Math.Floor(specialPoint)}/{GameBalance.MaxSp}";
         };
 
         GameManager.Instance.OnMoneyChanged += (int money) =>

@@ -327,7 +327,7 @@ MonoBehaviour:
   sushiCount: 0
   combo: 0
   isSpecialMode: 0
-  specialPoint: 130
+  specialPoint: 80
   specialPointCD: 1
   curSPCD: 0
   maxMoney: 0
