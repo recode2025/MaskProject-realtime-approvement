@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour {
     public int sushiCount = 0; // 寿司的数量
     public int combo = 0;
     public bool isSpecialMode = false; // 是否开心
-    public float specialPoint = 130f;
+    public float specialPoint = 80f;
 
     public float specialPointCD = 1.0f;
     public float curSPCD = 0;
