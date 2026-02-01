@@ -12,6 +12,7 @@ public class HUD : MonoBehaviour {
     [SerializeField] private Button StoreButton; // 新增：商店按钮
     
     [SerializeField] private GameObject Panel; // 恢复：用于自动注册给 GameManager
+    [SerializeField] private GameObject StorePanel; // 新增：用于自动注册商店面板
 
     [Header("Shop UI")]
     [SerializeField] private Button BuyBonusLevel;
@@ -33,9 +34,29 @@ public class HUD : MonoBehaviour {
         // 这样即使 GameManager 是跨场景保留的旧单例，也能找到当前场景的面板
         if (Panel != null) {
             GameManager.Instance.pausePanel = Panel;
+            
+            // 设置半透明白色背景，使面板突出
+            Image panelImage = Panel.GetComponent<Image>();
+            if (panelImage == null) {
+                // 如果没有 Image 组件，自动添加一个
+                panelImage = Panel.AddComponent<Image>();
+            }
+            panelImage.color = new Color(1f, 1f, 1f, 0.85f); // 85% 不透明度的白色
+            
             Panel.SetActive(false); // 确保初始是隐藏的
         } else {
             Debug.LogError("HUD: 请在 Inspector 中将 PausePanel 拖给 HUD 的 Panel 槽位！");
+        }
+
+        // 自动注册 StorePanel
+        if (StorePanel != null) {
+            GameManager.Instance.storePanel = StorePanel;
+            
+            // 确保 ShopUI 初始化
+            ShopUI shopUI = StorePanel.GetComponent<ShopUI>();
+            if (shopUI != null) {
+                shopUI.Init();
+            }
         }
 
         GameManager.Instance.OnComboChanged += (int combo) => {
@@ -84,6 +105,7 @@ public class HUD : MonoBehaviour {
         // 绑定商店按钮
         if (StoreButton != null) {
             StoreButton.onClick.AddListener(() => {
+                Debug.Log("HUD: Store Button Clicked");
                 GameManager.Instance.OpenShop();
             });
         }

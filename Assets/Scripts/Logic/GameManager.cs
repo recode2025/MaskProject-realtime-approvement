@@ -477,6 +477,13 @@ public class GameManager : MonoBehaviour {
     {
         isPaused = true;
         Time.timeScale = 0f;
+        
+        // 互斥逻辑：暂停时关闭商店面板
+        if (storePanel != null)
+        {
+            storePanel.SetActive(false);
+        }
+
         if (pausePanel != null)
         {
             pausePanel.SetActive(true);
@@ -495,6 +502,11 @@ public class GameManager : MonoBehaviour {
         if (pausePanel != null)
         {
             pausePanel.SetActive(false);
+        }
+        // 恢复游戏时确保商店也关闭
+        if (storePanel != null)
+        {
+            storePanel.SetActive(false);
         }
         OnPauseStateChanged?.Invoke(false); // 通知恢复
         Debug.Log("游戏恢复");
