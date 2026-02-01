@@ -139,6 +139,7 @@ GameObject:
   - component: {fileID: 69226777}
   - component: {fileID: 69226776}
   - component: {fileID: 69226778}
+  - component: {fileID: 69226779}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -322,6 +323,71 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc71fc9af8505a542b812280577f23b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &69226779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 69226768}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68e7922b33953f3439e614358e334270, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Money: 1000
+  moneyScale: 1
+  sushiCount: 0
+  combo: 0
+  isSpecialMode: 0
+  specialPoint: 130
+  specialPointCD: 1
+  curSPCD: 0
+  maxMoney: 0
+  maxSushiCount: 0
+  sushiSpawner: {fileID: 1816594893}
+  gameData:
+    maxMoney: 0
+    maxSushiCount: 0
+    coins: 0
+    bonusLevel: 0
+    rateLevel: 0
+    spLevel: 0
+    specialBonusLevel: 0
+    lastPlayTime: 2026-02-01 10:10:57
+    totalGamesPlayed: 0
+  pausePanel: {fileID: 204500086}
+  resetSaveOnStart: 1
+  bonusLevel: 0
+  rateLevel: 0
+  spLevel: 0
+  specialBonusLevel: 0
+  baseBonus:
+  - 350
+  - 250
+  - 250
+  - 150
+  coefficient:
+  - 23
+  - 27
+  - 27
+  - 31
+  baseRate:
+  - 10
+  - 15
+  - 30
+  - 45
+  maxRate:
+  - 45
+  - 30
+  - 15
+  - 10
+  baseSp: 1
+  baseSpecialBonus: 1
+  baseBonusPrice: 1800
+  baseRatePrice: 2000
+  baseSpPrice: 2200
+  baseSpecialPrice: 2000
 --- !u!1 &71645003
 GameObject:
   m_ObjectHideFlags: 0
@@ -879,7 +945,7 @@ GameObject:
   - component: {fileID: 328937539}
   - component: {fileID: 328937538}
   m_Layer: 5
-  m_Name: Button
+  m_Name: ResumeButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -950,7 +1016,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1881996453}
+      - m_Target: {fileID: 69226779}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
         m_MethodName: ResumeGame
         m_Mode: 1
@@ -1739,7 +1805,7 @@ PrefabInstance:
     - target: {fileID: 6443756879899228600, guid: c8b4a82b04391054bbb4625bea0687ff, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1881996453}
+      objectReference: {fileID: 69226779}
     - target: {fileID: 6443756879899228600, guid: c8b4a82b04391054bbb4625bea0687ff, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -2119,7 +2185,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30eb0e2348e37be41a8a58446ccc3c50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isOn: 0
+  isOn: 1
   minTime: 1
   maxTime: 2
   targetTime: 0
@@ -2149,103 +2215,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 299389419}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1881996452
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1881996454}
-  - component: {fileID: 1881996453}
-  m_Layer: 0
-  m_Name: GameManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1881996453
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1881996452}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68e7922b33953f3439e614358e334270, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Money: 1000
-  moneyScale: 1
-  sushiCount: 0
-  combo: 0
-  isSpecialMode: 0
-  specialPoint: 130
-  specialPointCD: 1
-  curSPCD: 0
-  maxMoney: 0
-  maxSushiCount: 0
-  sushiSpawner: {fileID: 1816594893}
-  gameData:
-    maxMoney: 0
-    maxSushiCount: 0
-    coins: 0
-    bonusLevel: 0
-    rateLevel: 0
-    spLevel: 0
-    specialBonusLevel: 0
-    lastPlayTime: 2026-02-01 09:05:40
-    totalGamesPlayed: 0
-  pausePanel: {fileID: 204500086}
-  resetSaveOnStart: 1
-  bonusLevel: 0
-  rateLevel: 0
-  spLevel: 0
-  specialBonusLevel: 0
-  baseBonus:
-  - 350
-  - 250
-  - 250
-  - 150
-  coefficient:
-  - 23
-  - 27
-  - 27
-  - 31
-  baseRate:
-  - 10
-  - 15
-  - 30
-  - 45
-  maxRate:
-  - 45
-  - 30
-  - 15
-  - 10
-  baseSp: 1
-  baseSpecialBonus: 1
-  baseBonusPrice: 1800
-  baseRatePrice: 2000
-  baseSpPrice: 2200
-  baseSpecialPrice: 2000
---- !u!4 &1881996454
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1881996452}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 588.5291, y: 294.63007, z: -13.898013}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1993433708
 GameObject:
@@ -2557,4 +2526,3 @@ SceneRoots:
   - {fileID: 1740076577}
   - {fileID: 2060153423}
   - {fileID: 1099919866}
-  - {fileID: 1881996454}
