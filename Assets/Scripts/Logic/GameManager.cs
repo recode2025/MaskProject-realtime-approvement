@@ -27,6 +27,12 @@ public class GameManager : MonoBehaviour {
     // 游戏数据
     public GameData gameData;
 
+    [Header("UI引用")]
+    public GameObject pausePanel; // 暂停界面
+    public GameObject storePanel;  // 商店界面
+
+    private bool isPaused = false;
+
     [Header("调试选项")]
     [Tooltip("勾选此项，下次运行游戏时会清除存档并重置金币和等级")]
     public bool resetSaveOnStart = true;
@@ -56,6 +62,7 @@ public class GameManager : MonoBehaviour {
     public event Action<int> OnMoneyChanged;
     public event Action<float> OnSpecialPointChanged;
     public event Action OnSpecialModeChanged;
+    public event Action<bool> OnPauseStateChanged; // 暂停状态改变事件
 
     public event Action<int> OnBonusLevelChanged;
     public event Action<int> OnRateLevelChanged;
@@ -389,5 +396,125 @@ public class GameManager : MonoBehaviour {
             OnSpecialPointChanged?.Invoke(specialPoint);
         }
 
+    }
+
+    /// <summary>
+    /// 打开商店（绑定到商店按钮）
+    /// </summary>
+    public void OpenShop()
+    {
+        Debug.Log($"尝试打开商店... storePanel is null? {storePanel == null}");
+        
+        if (storePanel != null)
+        {
+            // 尝试使用 ShopUI 脚本逻辑
+            ShopUI shopUI = storePanel.GetComponent<ShopUI>();
+            if (shopUI != null)
+            {
+                Debug.Log("调用 ShopUI.OpenShop()");
+                shopUI.OpenShop();
+            }
+            else
+            {
+                Debug.Log("直接激活 storePanel");
+                storePanel.SetActive(true);
+            }
+
+            // 暂停时间，但不显示暂停菜单
+            isPaused = true;
+            Time.timeScale = 0f;
+            OnPauseStateChanged?.Invoke(true);
+        }
+        else
+        {
+            Debug.LogError("打开商店失败：storePanel 未赋值！请在 Inspector 中将 ShopPanel 拖给 GameManager 的 Store Panel 字段。");
+        }
+    }
+
+    /// <summary>
+    /// 关闭商店
+    /// </summary>
+    public void CloseShop()
+    {
+        if (storePanel != null)
+        {
+            ShopUI shopUI = storePanel.GetComponent<ShopUI>();
+            if (shopUI != null)
+            {
+                shopUI.CloseShop();
+            }
+            else
+            {
+                storePanel.SetActive(false);
+            }
+
+            // 恢复游戏
+            ResumeGame();
+        }
+    }
+
+    /// <summary>
+    /// 切换暂停状态（绑定到暂停按钮）
+    /// </summary>
+    public void TogglePause()
+    {
+        if (isPaused)
+        {
+            ResumeGame();
+        }
+        else
+        {
+            PauseGame();
+        }
+    }
+
+    /// <summary>
+    /// 暂停游戏
+    /// </summary>
+    public void PauseGame()
+    {
+        isPaused = true;
+        Time.timeScale = 0f;
+        
+        // 互斥逻辑：暂停时关闭商店面板
+        if (storePanel != null)
+        {
+            storePanel.SetActive(false);
+        }
+
+        if (pausePanel != null)
+        {
+            pausePanel.SetActive(true);
+        }
+        OnPauseStateChanged?.Invoke(true); // 通知暂停
+        Debug.Log("游戏暂停");
+    }
+
+    /// <summary>
+    /// 恢复游戏
+    /// </summary>
+    public void ResumeGame()
+    {
+        isPaused = false;
+        Time.timeScale = 1f;
+        if (pausePanel != null)
+        {
+            pausePanel.SetActive(false);
+        }
+        // 恢复游戏时确保商店也关闭
+        if (storePanel != null)
+        {
+            storePanel.SetActive(false);
+        }
+        OnPauseStateChanged?.Invoke(false); // 通知恢复
+        Debug.Log("游戏恢复");
+    }
+
+    /// <summary>
+    /// 获取当前是否暂停
+    /// </summary>
+    public bool IsPaused()
+    {
+        return isPaused;
     }
 }

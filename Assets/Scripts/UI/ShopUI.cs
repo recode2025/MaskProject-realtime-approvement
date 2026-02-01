@@ -26,9 +26,38 @@ public class ShopUI : MonoBehaviour {
 
     private List<ShopItemUI> spawnedItems = new List<ShopItemUI>();
 
+    private bool isInitialized = false;
+
     void Start() {
+        Init();
+    }
+    
+    public void Init() {
+        if (isInitialized) return;
+        
+        // 自动将 StorePanel 注册给 GameManager
+        if (GameManager.Instance != null) {
+            GameManager.Instance.storePanel = this.gameObject;
+        }
+
+        // 容错：如果 panelRoot 未赋值，尝试自动获取
+        if (panelRoot == null) {
+            panelRoot = this.gameObject;
+            Debug.LogWarning("ShopUI: panelRoot was null, auto-assigned to self.");
+        }
+
         if (closeButton) closeButton.onClick.AddListener(CloseShop);
         if (openButton) openButton.onClick.AddListener(OpenShop);
+        
+        // 设置背景样式：半透明白色
+        if (panelRoot) {
+            Image bg = panelRoot.GetComponent<Image>();
+            if (bg == null) {
+                // 如果没有 Image 组件，自动添加一个
+                bg = panelRoot.AddComponent<Image>();
+            }
+            bg.color = new Color(1f, 1f, 1f, 0.85f);
+        }
         
         // 如果没有配置，自动添加默认配置
         if (shopConfigs == null || shopConfigs.Count == 0) {
@@ -36,13 +65,23 @@ public class ShopUI : MonoBehaviour {
         }
 
         // 生成所有商品
-        GenerateItems();
+        try {
+            GenerateItems();
+        } catch (System.Exception e) {
+            Debug.LogError($"ShopUI: Failed to generate items. Error: {e.Message}\n{e.StackTrace}");
+        }
         
         // 初始刷新
-        RefreshAll();
+        try {
+            RefreshAll();
+        } catch (System.Exception e) {
+            Debug.LogError($"ShopUI: Failed to refresh items. Error: {e.Message}\n{e.StackTrace}");
+        }
         
         // 默认关闭
         if (panelRoot) panelRoot.SetActive(false);
+        
+        isInitialized = true;
     }
     
     void InitDefaultConfigs() {
@@ -104,6 +143,8 @@ public class ShopUI : MonoBehaviour {
     }
     
     public void OpenShop() {
+        if (!isInitialized) Init();
+
         if (panelRoot) {
             panelRoot.SetActive(true);
             // 简单的弹出动画
@@ -125,5 +166,10 @@ public class ShopUI : MonoBehaviour {
     
     public void CloseShop() {
         if (panelRoot) panelRoot.SetActive(false);
+        
+        // 确保关闭商店时恢复游戏
+        if (GameManager.Instance != null) {
+            GameManager.Instance.ResumeGame();
+        }
     }
 }
