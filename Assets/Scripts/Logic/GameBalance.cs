@@ -41,5 +41,5 @@ public static class GameBalance
     public static double PriceGrowthFactor = 1.15;
 
     // ================= 测试/调试配置  debug=================
-    public static int InitialCoins = 100000; 
+    public static int InitialCoins = 1000; 
 }

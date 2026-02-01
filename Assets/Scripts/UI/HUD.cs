@@ -38,7 +38,7 @@ public class HUD : MonoBehaviour {
             Debug.LogError("HUD: 请在 Inspector 中将 PausePanel 拖给 HUD 的 Panel 槽位！");
         }
 
-        GameManager.Instance.OnComboUpdated += (int combo) => {
+        GameManager.Instance.OnComboChanged += (int combo) => {
             if (combo != 0) {
                 ComboCount.gameObject.SetActive(true);
                 Combo.gameObject.SetActive(true);
@@ -50,13 +50,29 @@ public class HUD : MonoBehaviour {
             }
         };
 
-        GameManager.Instance.OnSpecialPointUpdated += (float specialPoint) => {
+        GameManager.Instance.OnSpecialPointChanged += (float specialPoint) => {
             SpBar.size = specialPoint / GameBalance.MaxSp;
         };
 
-        GameManager.Instance.OnMoneyUpdated += (int money) => {
+        GameManager.Instance.OnMoneyChanged += (int money) => {
              // 修复合并产生的乱码，暂时只显示数字
             CoinsCount.text = money.ToString();
+        };
+
+        GameManager.Instance.OnBonusLevelChanged += (int bonusLevel) => {
+            BonusLevel.text = bonusLevel.ToString();
+        };
+
+        GameManager.Instance.OnRateLevelChanged += (int rateLevel) => {
+            RateLevel.text = rateLevel.ToString();
+        };
+
+        GameManager.Instance.OnSpLevelChanged += (int spLevel) => {
+            SpLevel.text = spLevel.ToString();
+        };
+
+        GameManager.Instance.OnSpecialBonusLevelChanged += (int specialBonusLevel) => {
+            SpecialBonusLevel.text = specialBonusLevel.ToString();
         };
 
         PauseButton.onClick.AddListener(() => {
