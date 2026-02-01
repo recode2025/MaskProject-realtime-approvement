@@ -27,7 +27,7 @@ public static class GameBalance
     public static float BaseSp = 1f;
     
     // 连击奖励基础倍率
-    public static float BaseReward = 1f;
+    public static float SpecialBonus = 350f;
 
     // ================= 商店价格配置 =================
     

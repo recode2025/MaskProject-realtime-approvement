@@ -94,7 +94,7 @@ public class HUD : MonoBehaviour
         GameManager.Instance.OnMoneyChanged += (int money) =>
         {
             // 修复合并产生的乱码，暂时只显示数字
-            CoinsCount.text = money.ToString();
+            CoinsCount.text = "￥" + money.ToString();
         };
 
         GameManager.Instance.OnBonusLevelChanged += (int bonusLevel) =>
