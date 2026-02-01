@@ -2719,6 +2719,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: f8470110b35e0f3418c51a880263c424, type: 3}
   belt: {fileID: 1118482381}
   sushiScale: 2
+  plateSprite: {fileID: 21300000, guid: 00275ef0a7a8e9f44bf226e74cf02fc1, type: 3}
+  plateScale: {x: 1, y: 1}
+  plateOffset: {x: 0, y: -20}
 --- !u!4 &1816594894
 Transform:
   m_ObjectHideFlags: 0
