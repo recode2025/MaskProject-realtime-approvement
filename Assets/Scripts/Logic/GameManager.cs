@@ -28,6 +28,11 @@ public class GameManager : MonoBehaviour
     // 游戏数据
     public GameData gameData;
 
+    [Header("UI引用")]
+    public GameObject pausePanel; // 暂停界面
+
+    private bool isPaused = false;
+
     [Header("调试选项")]
     [Tooltip("勾选此项，下次运行游戏时会清除存档并重置金币和等级")]
     public bool resetSaveOnStart = true;
@@ -63,6 +68,7 @@ public class GameManager : MonoBehaviour
     public event Action<int> OnMoneyUpdated;
     public event Action<float> OnSpecialPointUpdated;
     public event Action OnSpecialModeUpdated;
+    public event Action<bool> OnPauseStateChanged; // 暂停状态改变事件
 
     // 获取当前时间的方法
     public float GetCurrentTime()
@@ -442,5 +448,58 @@ public class GameManager : MonoBehaviour
         {
             moneyScale = Math.Min(1.5f, moneyScale + 0.1f);
         }
+    }
+
+    /// <summary>
+    /// 切换暂停状态（绑定到暂停按钮）
+    /// </summary>
+    public void TogglePause()
+    {
+        if (isPaused)
+        {
+            ResumeGame();
+        }
+        else
+        {
+            PauseGame();
+        }
+    }
+
+    /// <summary>
+    /// 暂停游戏
+    /// </summary>
+    public void PauseGame()
+    {
+        isPaused = true;
+        Time.timeScale = 0f;
+        if (pausePanel != null)
+        {
+            pausePanel.SetActive(true);
+        }
+        OnPauseStateChanged?.Invoke(true); // 通知暂停
+        Debug.Log("游戏暂停");
+    }
+
+    /// <summary>
+    /// 恢复游戏
+    /// </summary>
+    public void ResumeGame()
+    {
+        isPaused = false;
+        Time.timeScale = 1f;
+        if (pausePanel != null)
+        {
+            pausePanel.SetActive(false);
+        }
+        OnPauseStateChanged?.Invoke(false); // 通知恢复
+        Debug.Log("游戏恢复");
+    }
+
+    /// <summary>
+    /// 获取当前是否暂停
+    /// </summary>
+    public bool IsPaused()
+    {
+        return isPaused;
     }
 }

@@ -9,10 +9,19 @@ public class HUD : MonoBehaviour {
     [SerializeField] private Text ComboCount;
     [SerializeField] private Text Combo;
     [SerializeField] private Button PauseButton;
-    [SerializeField] private GameObject Panel;
+    [SerializeField] private GameObject Panel; // 恢复：用于自动注册给 GameManager
 
     // Start is called before the first frame update
     void Start() {
+        // 自动将 HUD 里的 Panel 注册给 GameManager
+        // 这样即使 GameManager 是跨场景保留的旧单例，也能找到当前场景的面板
+        if (Panel != null) {
+            GameManager.Instance.pausePanel = Panel;
+            Panel.SetActive(false); // 确保初始是隐藏的
+        } else {
+            Debug.LogError("HUD: 请在 Inspector 中将 PausePanel 拖给 HUD 的 Panel 槽位！");
+        }
+
         GameManager.Instance.OnComboUpdated += (int combo) => {
             if (combo != 0) {
                 ComboCount.gameObject.SetActive(true);
@@ -34,12 +43,36 @@ public class HUD : MonoBehaviour {
         };
 
         PauseButton.onClick.AddListener(() => {
-            Panel.SetActive(!Panel.activeInHierarchy);
+            // 强制调用 PauseGame 而不是 TogglePause
+            // 这样即使 Inspector 和代码双重绑定，也只会执行多次“暂停”，而不会导致“暂停又恢复”
+            GameManager.Instance.PauseGame();
         });
+
+        // 监听暂停状态，暂停时隐藏按钮，恢复时显示
+        GameManager.Instance.OnPauseStateChanged += OnPauseStateChanged;
+    }
+
+    private void OnPauseStateChanged(bool isPaused) {
+        if (PauseButton != null) {
+            PauseButton.gameObject.SetActive(!isPaused);
+        }
+    }
+
+    private void OnDestroy() {
+        if (GameManager.Instance != null) {
+            GameManager.Instance.OnPauseStateChanged -= OnPauseStateChanged;
+        }
     }
 
     // Update is called once per frame
     void Update() {
-
+        // 自动修复 Canvas 丢失 Camera 的问题 (防止 DontDestroyOnLoad 后 UI 消失)
+        // 只有当 Canvas 模式为 ScreenSpace - Camera 时才需要
+        Canvas canvas = GetComponent<Canvas>();
+        if (canvas != null && canvas.renderMode == RenderMode.ScreenSpaceCamera && canvas.worldCamera == null) {
+            if (Camera.main != null) {
+                canvas.worldCamera = Camera.main;
+            }
+        }
     }
 }
