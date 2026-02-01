@@ -2331,7 +2331,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: InteractiveUI
       objectReference: {fileID: 0}
-<<<<<<< HEAD
     - target: {fileID: 1825035719501763992, guid: c8b4a82b04391054bbb4625bea0687ff, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -2340,8 +2339,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -882.27
       objectReference: {fileID: 0}
-=======
->>>>>>> 116cc89f89203bce49df972e7779426725188550
     - target: {fileID: 2268496795923849165, guid: c8b4a82b04391054bbb4625bea0687ff, type: 3}
       propertyPath: Panel
       value: 
