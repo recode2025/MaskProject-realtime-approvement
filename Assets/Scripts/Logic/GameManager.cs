@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour {
     public bool isSpecialMode = false; // 是否开心
     public float specialPoint = 80f;
 
-    public float specialPointCD = 1.0f;
+    public float specialPointCD = 0.3f;
     public float curSPCD = 0;
 
     // 历史统计
@@ -270,13 +270,13 @@ public class GameManager : MonoBehaviour {
     public int GetUpgradePrice(UpgradeType type) {
         switch (type) {
             case UpgradeType.Bonus:
-                return (int)Math.Round(GameBalance.BaseBonusPrice + Math.Pow(1.05, bonusLevel));
+                return (int)Math.Round(GameBalance.BaseBonusPrice * Math.Pow(1.05, bonusLevel));
             case UpgradeType.Rate:
-                return (int)Math.Round(GameBalance.BaseRatePrice + Math.Pow(1.05, rateLevel));
+                return (int)Math.Round(GameBalance.BaseRatePrice * Math.Pow(1.05, rateLevel));
             case UpgradeType.Sp:
-                return (int)Math.Round(GameBalance.BaseSpPrice + Math.Pow(1.08, spLevel));
+                return (int)Math.Round(GameBalance.BaseSpPrice * Math.Pow(1.08, spLevel));
             case UpgradeType.SpecialBonus:
-                return (int)Math.Round(GameBalance.BaseSpecialBonusPrice + Math.Pow(1.06, specialBonusLevel));
+                return (int)Math.Round(GameBalance.BaseSpecialBonusPrice * Math.Pow(1.06, specialBonusLevel));
         }
         return 7000;
     }
@@ -391,8 +391,8 @@ public class GameManager : MonoBehaviour {
 
         ++combo;
         OnComboChanged?.Invoke(combo);
-        if (combo % 100 == 0) {
-            moneyScale = Math.Min(1.5f, moneyScale + 0.1f);
+        if (combo % 10 == 0) {
+            moneyScale = Math.Min(1.5f, moneyScale + 0.02f);
         }
 
         Money += (int)Math.Round((isSpecialMode ? GetSpecialBonus() : bonus) * moneyScale);

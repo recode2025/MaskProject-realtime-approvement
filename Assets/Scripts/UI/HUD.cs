@@ -109,19 +109,19 @@ public class HUD : MonoBehaviour
         GameManager.Instance.OnRateLevelChanged += (int rateLevel) =>
         {
             RateLevel.text = rateLevel.ToString();
-            BonusPrice.text = GameManager.Instance.GetUpgradePrice(GameManager.UpgradeType.Rate).ToString();
+            RatePrice.text = GameManager.Instance.GetUpgradePrice(GameManager.UpgradeType.Rate).ToString();
         };
 
         GameManager.Instance.OnSpLevelChanged += (int spLevel) =>
         {
             SpLevel.text = spLevel.ToString();
-            BonusPrice.text = GameManager.Instance.GetUpgradePrice(GameManager.UpgradeType.Sp).ToString();
+            SpPrice.text = GameManager.Instance.GetUpgradePrice(GameManager.UpgradeType.Sp).ToString();
         };
 
         GameManager.Instance.OnSpecialBonusLevelChanged += (int specialBonusLevel) =>
         {
             SpecialBonusLevel.text = specialBonusLevel.ToString();
-            BonusPrice.text = GameManager.Instance.GetUpgradePrice(GameManager.UpgradeType.SpecialBonus).ToString();
+            SpecialBonusPrice.text = GameManager.Instance.GetUpgradePrice(GameManager.UpgradeType.SpecialBonus).ToString();
         };
 
         PauseButton.onClick.AddListener(() =>

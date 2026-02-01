@@ -32,10 +32,10 @@ public static class GameBalance
     // ================= 商店价格配置 =================
     
     // 基础价格----> 默认画布价格
-    public static float BaseBonusPrice = 7800;  // 寿司升值
-    public static float BaseRatePrice = 7000;   // 高级进货
-    public static float BaseSpPrice = 7000;     // SP充能
-    public static float BaseSpecialBonusPrice = 7500; // 连击奖励
+    public static float BaseBonusPrice = 1500;  // 寿司升值
+    public static float BaseRatePrice = 2000;   // 高级进货
+    public static float BaseSpPrice = 3000;     // SP充能
+    public static float BaseSpecialBonusPrice = 2000; // 连击奖励
     
     // 价格增长指数 (价格 = 基础价格 * (PriceGrowthFactor ^ 等级))
     public static double PriceGrowthFactor = 1.15;
