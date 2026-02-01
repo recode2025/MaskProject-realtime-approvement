@@ -61,7 +61,7 @@ public class GameManager : MonoBehaviour {
     public event Action<int> OnComboChanged;
     public event Action<int> OnMoneyChanged;
     public event Action<float> OnSpecialPointChanged;
-    public event Action OnSpecialModeChanged;
+    public event Action<bool> OnSpecialModeChanged;
     public event Action<bool> OnPauseStateChanged; // 暂停状态改变事件
 
     public event Action<int> OnBonusLevelChanged;
@@ -126,7 +126,12 @@ public class GameManager : MonoBehaviour {
     }
 
     void Start() {
-
+        OnSpecialPointChanged += (float specialPoint) => {
+            if (specialPoint >= GameBalance.MaxSp) {
+                isSpecialMode = true;
+                OnSpecialModeChanged?.Invoke(isSpecialMode);
+            }
+        };
     }
 
     void Update() {
@@ -139,7 +144,7 @@ public class GameManager : MonoBehaviour {
 
                 if (specialPoint == 0) {
                     isSpecialMode = false;
-                    OnSpecialPointChanged?.Invoke(specialPoint);
+                    OnSpecialModeChanged?.Invoke(isSpecialMode);
                 }
             }
         }
@@ -158,10 +163,10 @@ public class GameManager : MonoBehaviour {
 
         bonusLevel = gameData.bonusLevel;
         OnBonusLevelChanged?.Invoke(bonusLevel);
-        
+
         rateLevel = gameData.rateLevel;
         OnRateLevelChanged?.Invoke(rateLevel);
-        
+
         spLevel = gameData.spLevel;
         OnSpLevelChanged?.Invoke(spLevel);
 
@@ -287,20 +292,20 @@ public class GameManager : MonoBehaviour {
 
             switch (type) {
                 case UpgradeType.Bonus:
-                    bonusLevel++; 
+                    bonusLevel++;
                     OnBonusLevelChanged?.Invoke(bonusLevel);
                     break;
-                case UpgradeType.Rate: 
-                    rateLevel++; 
+                case UpgradeType.Rate:
+                    rateLevel++;
                     OnRateLevelChanged?.Invoke(rateLevel);
                     InitRate();
                     break;
-                case UpgradeType.Sp: 
-                    spLevel++; 
+                case UpgradeType.Sp:
+                    spLevel++;
                     OnSpLevelChanged?.Invoke(spLevel);
                     break;
                 case UpgradeType.SpecialBonus:
-                    specialBonusLevel++; 
+                    specialBonusLevel++;
                     OnSpecialBonusLevelChanged?.Invoke(specialBonusLevel);
                     break;
             }
@@ -337,7 +342,7 @@ public class GameManager : MonoBehaviour {
     }
 
     public float GetSpecialBonus() {
-        return (float)(GameBalance.BaseReward * Math.Pow(1.03, specialBonusLevel));
+        return (float)(GameBalance.SpecialBonus * Math.Pow(1.03, specialBonusLevel));
     }
 
     public void InitRate() {
@@ -401,21 +406,17 @@ public class GameManager : MonoBehaviour {
     /// <summary>
     /// 打开商店（绑定到商店按钮）
     /// </summary>
-    public void OpenShop()
-    {
+    public void OpenShop() {
         Debug.Log($"尝试打开商店... storePanel is null? {storePanel == null}");
-        
-        if (storePanel != null)
-        {
+
+        if (storePanel != null) {
             // 尝试使用 ShopUI 脚本逻辑
             ShopUI shopUI = storePanel.GetComponent<ShopUI>();
-            if (shopUI != null)
-            {
+            if (shopUI != null) {
                 Debug.Log("调用 ShopUI.OpenShop()");
                 shopUI.OpenShop();
             }
-            else
-            {
+            else {
                 Debug.Log("直接激活 storePanel");
                 storePanel.SetActive(true);
             }
@@ -425,8 +426,7 @@ public class GameManager : MonoBehaviour {
             Time.timeScale = 0f;
             OnPauseStateChanged?.Invoke(true);
         }
-        else
-        {
+        else {
             Debug.LogError("打开商店失败：storePanel 未赋值！请在 Inspector 中将 ShopPanel 拖给 GameManager 的 Store Panel 字段。");
         }
     }
@@ -434,17 +434,13 @@ public class GameManager : MonoBehaviour {
     /// <summary>
     /// 关闭商店
     /// </summary>
-    public void CloseShop()
-    {
-        if (storePanel != null)
-        {
+    public void CloseShop() {
+        if (storePanel != null) {
             ShopUI shopUI = storePanel.GetComponent<ShopUI>();
-            if (shopUI != null)
-            {
+            if (shopUI != null) {
                 shopUI.CloseShop();
             }
-            else
-            {
+            else {
                 storePanel.SetActive(false);
             }
 
@@ -456,14 +452,11 @@ public class GameManager : MonoBehaviour {
     /// <summary>
     /// 切换暂停状态（绑定到暂停按钮）
     /// </summary>
-    public void TogglePause()
-    {
-        if (isPaused)
-        {
+    public void TogglePause() {
+        if (isPaused) {
             ResumeGame();
         }
-        else
-        {
+        else {
             PauseGame();
         }
     }
@@ -471,19 +464,16 @@ public class GameManager : MonoBehaviour {
     /// <summary>
     /// 暂停游戏
     /// </summary>
-    public void PauseGame()
-    {
+    public void PauseGame() {
         isPaused = true;
         Time.timeScale = 0f;
-        
+
         // 互斥逻辑：暂停时关闭商店面板
-        if (storePanel != null)
-        {
+        if (storePanel != null) {
             storePanel.SetActive(false);
         }
 
-        if (pausePanel != null)
-        {
+        if (pausePanel != null) {
             pausePanel.SetActive(true);
         }
         OnPauseStateChanged?.Invoke(true); // 通知暂停
@@ -493,17 +483,14 @@ public class GameManager : MonoBehaviour {
     /// <summary>
     /// 恢复游戏
     /// </summary>
-    public void ResumeGame()
-    {
+    public void ResumeGame() {
         isPaused = false;
         Time.timeScale = 1f;
-        if (pausePanel != null)
-        {
+        if (pausePanel != null) {
             pausePanel.SetActive(false);
         }
         // 恢复游戏时确保商店也关闭
-        if (storePanel != null)
-        {
+        if (storePanel != null) {
             storePanel.SetActive(false);
         }
         OnPauseStateChanged?.Invoke(false); // 通知恢复
@@ -513,8 +500,7 @@ public class GameManager : MonoBehaviour {
     /// <summary>
     /// 获取当前是否暂停
     /// </summary>
-    public bool IsPaused()
-    {
+    public bool IsPaused() {
         return isPaused;
     }
 }
