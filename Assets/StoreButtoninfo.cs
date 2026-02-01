@@ -41,7 +41,7 @@ public class StoreButtoninfo : MonoBehaviour
             case 1: return GameManager.UpgradeType.Bonus;
             case 2: return GameManager.UpgradeType.Rate;
             case 3: return GameManager.UpgradeType.Sp;
-            case 4: return GameManager.UpgradeType.Reward;
+            case 4: return GameManager.UpgradeType.SpecialBonus;
             default: return GameManager.UpgradeType.Bonus;
         }
     }

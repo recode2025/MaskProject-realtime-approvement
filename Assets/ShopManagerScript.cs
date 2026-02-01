@@ -77,7 +77,7 @@ public class ShopManagerScript : MonoBehaviour
             case 1: type = GameManager.UpgradeType.Bonus; break;
             case 2: type = GameManager.UpgradeType.Rate; break;
             case 3: type = GameManager.UpgradeType.Sp; break;
-            case 4: type = GameManager.UpgradeType.Reward; break;
+            case 4: type = GameManager.UpgradeType.SpecialBonus; break;
             default:
                 Debug.LogError($"[ShopManagerScript] 购买失败: 接收到的商品ID为 {itemID}。\n" +
                                "原因可能是:\n" +

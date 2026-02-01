@@ -25,7 +25,10 @@ public class HUD : MonoBehaviour {
 
     // Start is called before the first frame update
     void Start() {
-
+        BonusPrice.text = GameManager.Instance.GetUpgradePrice(GameManager.UpgradeType.Bonus).ToString();
+        RatePrice.text = GameManager.Instance.GetUpgradePrice(GameManager.UpgradeType.Rate).ToString();
+        SpPrice.text = GameManager.Instance.GetUpgradePrice(GameManager.UpgradeType.Sp).ToString();
+        SpecialBonusPrice.text = GameManager.Instance.GetUpgradePrice(GameManager.UpgradeType.SpecialBonus).ToString();
 
         GameManager.Instance.OnComboChanged += (int combo) => {
             if (combo != 0) {
@@ -49,37 +52,42 @@ public class HUD : MonoBehaviour {
 
         GameManager.Instance.OnBonusLevelChanged += (int bonusLevel) => {
             BonusLevel.text = bonusLevel.ToString();
+            BonusPrice.text = GameManager.Instance.GetUpgradePrice(GameManager.UpgradeType.Bonus).ToString();
         };
 
         GameManager.Instance.OnRateLevelChanged += (int rateLevel) => {
             RateLevel.text = rateLevel.ToString();
+            BonusPrice.text = GameManager.Instance.GetUpgradePrice(GameManager.UpgradeType.Rate).ToString();
         };
 
         GameManager.Instance.OnSpLevelChanged += (int spLevel) => {
             SpLevel.text = spLevel.ToString();
+            BonusPrice.text = GameManager.Instance.GetUpgradePrice(GameManager.UpgradeType.Sp).ToString();
         };
 
         GameManager.Instance.OnSpecialBonusLevelChanged += (int specialBonusLevel) => {
             SpecialBonusLevel.text = specialBonusLevel.ToString();
+            BonusPrice.text = GameManager.Instance.GetUpgradePrice(GameManager.UpgradeType.SpecialBonus).ToString();
         };
+
         PauseButton.onClick.AddListener(() => {
             Panel.SetActive(!Panel.activeInHierarchy);
         });
 
         BuyBonusLevel.onClick.AddListener(() => {
-            
+            GameManager.Instance.BuyUpgrade(GameManager.UpgradeType.Bonus);
         });
 
         BuyRateLevel.onClick.AddListener(() => {
-
+            GameManager.Instance.BuyUpgrade(GameManager.UpgradeType.Rate);
         });
 
         BuySpLevel.onClick.AddListener(() => {
-
+            GameManager.Instance.BuyUpgrade(GameManager.UpgradeType.Sp);
         });
 
         BuySpecialBonusLevel.onClick.AddListener(() => {
-
+            GameManager.Instance.BuyUpgrade(GameManager.UpgradeType.SpecialBonus);
         });
     }
 

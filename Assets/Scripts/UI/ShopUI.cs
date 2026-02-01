@@ -67,7 +67,7 @@ public class ShopUI : MonoBehaviour {
         });
         
         shopConfigs.Add(new ShopItemConfig {
-            type = GameManager.UpgradeType.Reward,
+            type = GameManager.UpgradeType.SpecialBonus,
             name = "连击奖励",
             desc = "提升连击带来的额外倍率"
         });

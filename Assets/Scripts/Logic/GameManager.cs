@@ -43,16 +43,11 @@ public class GameManager : MonoBehaviour {
     public float baseSp = 1f;
     public float baseSpecialBonus = 1f;
 
-    public float baseBonusPrice = 1800;
-    public float baseRatePrice = 2000;
-    public float baseSpPrice = 2200;
-    public float baseSpecialPrice = 2000;
-
     public enum UpgradeType {
         Bonus,
         Rate,
         Sp,
-        Reward
+        SpecialBonus
     }
     private List<float> rates;
     private float total = 0;
@@ -90,8 +85,8 @@ public class GameManager : MonoBehaviour {
         Money = 1000;
         OnMoneyChanged?.Invoke(Money);
         sushiCount = 0;
+        specialPoint = 80f;
 
-        specialPoint = 130f;
         OnSpecialPointChanged?.Invoke(specialPoint);
         if (sushiSpawner != null) {
             sushiSpawner.isOn = true;
@@ -128,29 +123,20 @@ public class GameManager : MonoBehaviour {
     }
 
     void Update() {
-        //if (curSPCD >= specialPointCD) {
-        //    curSPCD = 0;
-        //    Debug.Log($"specialPoint = {specialPoint} specialMode = {isSpecialMode}");
-        //    if (isSpecialMode) {
-        //        specialPoint = Math.Max(0, specialPoint - 1);
-        //        OnSpecialPointUpdated?.Invoke(specialPoint);
+        if (curSPCD >= specialPointCD) {
+            curSPCD = 0;
+            Debug.Log($"specialPoint = {specialPoint} specialMode = {isSpecialMode}");
+            if (isSpecialMode) {
+                specialPoint = Math.Max(0, specialPoint - 1);
+                OnSpecialPointChanged?.Invoke(specialPoint);
 
-        //        if (specialPoint == 0) {
-        //            isSpecialMode = false;
-        //            OnSpecialModeUpdated?.Invoke();
-        //        }
-        //    }
-        //    else {
-        //        specialPoint += GetSp();
-        //        OnSpecialPointUpdated?.Invoke(specialPoint);
-
-        //        if (specialPoint >= GameBalance.MaxSp) {
-        //            isSpecialMode = true;
-        //            OnSpecialModeUpdated?.Invoke();
-        //        }
-        //    }
-        //}
-        //curSPCD += Time.deltaTime;
+                if (specialPoint == 0) {
+                    isSpecialMode = false;
+                    OnSpecialPointChanged?.Invoke(specialPoint);
+                }
+            }
+        }
+        curSPCD += Time.deltaTime;
     }
 
     /// <summary>
@@ -158,20 +144,29 @@ public class GameManager : MonoBehaviour {
     /// </summary>
     public void LoadGameData() {
         gameData = JsonDataManager.LoadData();
+        Money = gameData.coins;
+        OnMoneyChanged?.Invoke(Money);
         maxMoney = gameData.maxMoney;
         maxSushiCount = gameData.maxSushiCount;
 
         bonusLevel = gameData.bonusLevel;
+        OnBonusLevelChanged?.Invoke(bonusLevel);
+        
         rateLevel = gameData.rateLevel;
+        OnRateLevelChanged?.Invoke(rateLevel);
+        
         spLevel = gameData.spLevel;
-        specialBonusLevel = gameData.specialBonusLevel;
+        OnSpLevelChanged?.Invoke(spLevel);
 
-        Debug.Log($"加载数据 - 最高金币: {maxMoney}, 持有金币: {gameData.coins}, 升级等级: [{bonusLevel},{rateLevel},{spLevel},{specialBonusLevel}]");
+        specialBonusLevel = gameData.specialBonusLevel;
+        OnSpecialBonusLevelChanged?.Invoke(specialBonusLevel);
+
+        Debug.Log($"加载数据 - 最高金币: {maxMoney}, 持有金币: {Money}, 升级等级: [{bonusLevel},{rateLevel},{spLevel},{specialBonusLevel}]");
 
         // [测试专用] 如果金币不足，自动补充，方便测试扣费
-        if (gameData.coins < 1000) {
-            gameData.coins = GameBalance.InitialCoins; // 默认为 100000
-            Debug.Log($"[测试助手] 检测到金币不足，已自动为您补充到 {gameData.coins} 以便测试商店功能！");
+        if (Money < 1000) {
+            Money = GameBalance.InitialCoins; // 默认为 100000
+            Debug.Log($"[测试助手] 检测到金币不足，已自动为您补充到 {Money} 以便测试商店功能！");
             SaveGameData(); // 保存修改
         }
     }
@@ -239,7 +234,8 @@ public class GameManager : MonoBehaviour {
         gameData = new GameData();
 
         // 测试模式：给予初始金币
-        gameData.coins = GameBalance.InitialCoins;
+        Money = GameBalance.InitialCoins;
+        gameData.coins = Money;
 
         maxMoney = 0;
         maxSushiCount = 0;
@@ -259,29 +255,17 @@ public class GameManager : MonoBehaviour {
     /// 默认价格增长公式：BasePrice * (1.15 ^ Level)
     /// </summary>
     public int GetUpgradePrice(UpgradeType type) {
-        float basePrice = 0;
-        int currentLevel = 0;
-
         switch (type) {
             case UpgradeType.Bonus:
-                basePrice = GameBalance.BaseBonusPrice;
-                currentLevel = bonusLevel;
-                break;
+                return (int)Math.Round(GameBalance.BaseBonusPrice + Math.Pow(1.05, bonusLevel));
             case UpgradeType.Rate:
-                basePrice = GameBalance.BaseRatePrice;
-                currentLevel = rateLevel;
-                break;
+                return (int)Math.Round(GameBalance.BaseRatePrice + Math.Pow(1.05, rateLevel));
             case UpgradeType.Sp:
-                basePrice = GameBalance.BaseSpPrice;
-                currentLevel = spLevel;
-                break;
-            case UpgradeType.Reward:
-                basePrice = GameBalance.BaseRewardPrice;
-                currentLevel = specialBonusLevel;
-                break;
+                return (int)Math.Round(GameBalance.BaseSpPrice + Math.Pow(1.08, spLevel));
+            case UpgradeType.SpecialBonus:
+                return (int)Math.Round(GameBalance.BaseSpecialBonusPrice + Math.Pow(1.06, specialBonusLevel));
         }
-
-        return (int)basePrice;
+        return 7000;
     }
 
     /// <summary>
@@ -292,20 +276,34 @@ public class GameManager : MonoBehaviour {
 
         if (Money >= price) {
             Money -= price;
+            OnMoneyChanged?.Invoke(Money);
 
             switch (type) {
-                case UpgradeType.Bonus: bonusLevel++; break;
-                case UpgradeType.Rate: rateLevel++; break;
-                case UpgradeType.Sp: spLevel++; break;
-                case UpgradeType.Reward: specialBonusLevel++; break;
+                case UpgradeType.Bonus:
+                    bonusLevel++; 
+                    OnBonusLevelChanged?.Invoke(bonusLevel);
+                    break;
+                case UpgradeType.Rate: 
+                    rateLevel++; 
+                    OnRateLevelChanged?.Invoke(rateLevel);
+                    InitRate();
+                    break;
+                case UpgradeType.Sp: 
+                    spLevel++; 
+                    OnSpLevelChanged?.Invoke(spLevel);
+                    break;
+                case UpgradeType.SpecialBonus:
+                    specialBonusLevel++; 
+                    OnSpecialBonusLevelChanged?.Invoke(specialBonusLevel);
+                    break;
             }
 
             SaveGameData();
-            Debug.Log($"购买成功: {type}, 新等级: {GetLevel(type)}, 剩余金币: {gameData.coins}");
+            Debug.Log($"购买成功: {type}, 新等级: {GetLevel(type)}, 剩余金币: {Money}");
             return true;
         }
 
-        Debug.Log($"购买失败: 金币不足。需要 {price}, 拥有 {gameData.coins}", this);
+        Debug.Log($"购买失败: 金币不足。需要 {price}, 拥有 {Money}", this);
         return false;
     }
 
@@ -314,7 +312,7 @@ public class GameManager : MonoBehaviour {
             case UpgradeType.Bonus: return bonusLevel;
             case UpgradeType.Rate: return rateLevel;
             case UpgradeType.Sp: return spLevel;
-            case UpgradeType.Reward: return specialBonusLevel;
+            case UpgradeType.SpecialBonus: return specialBonusLevel;
             default: return 0;
         }
     }
@@ -340,8 +338,8 @@ public class GameManager : MonoBehaviour {
         total = 0;
         for (int i = 0; i < 4; ++i) {
             float rate = GetRate(i);
-            rates.Add(rate);
             total += rate;
+            rates.Add(total);
         }
     }
 

@@ -9,7 +9,7 @@ public class GameData
 {
     public int maxMoney = 0; // 历史最高赚取的货币
     public int maxSushiCount = 0; // 历史最高的寿司数量
-    public int coins = 0; // 持有的金币（用于商店购买）
+    public int coins = 0; // 持有的金币（用于商店购0买）
     
     // 商店升级等级
     public int bonusLevel = 0;
