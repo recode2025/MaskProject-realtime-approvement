@@ -9,7 +9,22 @@ public class HUD : MonoBehaviour {
     [SerializeField] private Text ComboCount;
     [SerializeField] private Text Combo;
     [SerializeField] private Button PauseButton;
+    
     [SerializeField] private GameObject Panel; // 恢复：用于自动注册给 GameManager
+
+    [Header("Shop UI")]
+    [SerializeField] private Button BuyBonusLevel;
+    [SerializeField] private Button BuyRateLevel;
+    [SerializeField] private Button BuySpLevel;
+    [SerializeField] private Button BuySpecialBonusLevel;
+    [SerializeField] private Text BonusPrice;
+    [SerializeField] private Text RatePrice;
+    [SerializeField] private Text SpPrice;
+    [SerializeField] private Text SpecialBonusPrice;
+    [SerializeField] private Text BonusLevel;
+    [SerializeField] private Text RateLevel;
+    [SerializeField] private Text SpLevel;
+    [SerializeField] private Text SpecialBonusLevel;
 
     // Start is called before the first frame update
     void Start() {
@@ -39,6 +54,7 @@ public class HUD : MonoBehaviour {
         };
 
         GameManager.Instance.OnMoneyUpdated += (int money) => {
+             // 修复合并产生的乱码，暂时只显示数字
             CoinsCount.text = money.ToString();
         };
 
@@ -50,6 +66,12 @@ public class HUD : MonoBehaviour {
 
         // 监听暂停状态，暂停时隐藏按钮，恢复时显示
         GameManager.Instance.OnPauseStateChanged += OnPauseStateChanged;
+
+        // 绑定商店按钮事件 (防止空引用报错)
+        if (BuyBonusLevel != null) BuyBonusLevel.onClick.AddListener(() => { });
+        if (BuyRateLevel != null) BuyRateLevel.onClick.AddListener(() => { });
+        if (BuySpLevel != null) BuySpLevel.onClick.AddListener(() => { });
+        if (BuySpecialBonusLevel != null) BuySpecialBonusLevel.onClick.AddListener(() => { });
     }
 
     private void OnPauseStateChanged(bool isPaused) {
