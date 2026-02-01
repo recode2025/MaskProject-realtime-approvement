@@ -25,7 +25,9 @@ public class HUD : MonoBehaviour {
 
     // Start is called before the first frame update
     void Start() {
-        GameManager.Instance.OnComboUpdated += (int combo) => {
+
+
+        GameManager.Instance.OnComboChanged += (int combo) => {
             if (combo != 0) {
                 ComboCount.gameObject.SetActive(true);
                 Combo.gameObject.SetActive(true);
@@ -37,20 +39,35 @@ public class HUD : MonoBehaviour {
             }
         };
 
-        GameManager.Instance.OnSpecialPointUpdated += (float specialPoint) => {
+        GameManager.Instance.OnSpecialPointChanged += (float specialPoint) => {
             SpBar.size = specialPoint / GameBalance.MaxSp;
         };
 
-        GameManager.Instance.OnMoneyUpdated += (int money) => {
+        GameManager.Instance.OnMoneyChanged += (int money) => {
             CoinsCount.text = "гд" + money.ToString();
         };
 
+        GameManager.Instance.OnBonusLevelChanged += (int bonusLevel) => {
+            BonusLevel.text = bonusLevel.ToString();
+        };
+
+        GameManager.Instance.OnRateLevelChanged += (int rateLevel) => {
+            RateLevel.text = rateLevel.ToString();
+        };
+
+        GameManager.Instance.OnSpLevelChanged += (int spLevel) => {
+            SpLevel.text = spLevel.ToString();
+        };
+
+        GameManager.Instance.OnSpecialBonusLevelChanged += (int specialBonusLevel) => {
+            SpecialBonusLevel.text = specialBonusLevel.ToString();
+        };
         PauseButton.onClick.AddListener(() => {
             Panel.SetActive(!Panel.activeInHierarchy);
         });
 
         BuyBonusLevel.onClick.AddListener(() => {
-
+            
         });
 
         BuyRateLevel.onClick.AddListener(() => {

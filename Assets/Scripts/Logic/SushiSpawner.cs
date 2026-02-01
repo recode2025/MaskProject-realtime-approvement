@@ -36,7 +36,7 @@ public class SushiSpawner : MonoBehaviour {
         Debug.Log($"[SushiSpawner] 屏幕宽度: {screenWidth}, _scale: {_scale}");
         
         GameManager.Instance.sushiSpawner = this;
-        GameManager.Instance.OnSpecialModeUpdated += () => {
+        GameManager.Instance.OnSpecialModeChanged += () => {
             if (GameManager.Instance.isSpecialMode) {
                 speedScale = 1.25f;
             }
