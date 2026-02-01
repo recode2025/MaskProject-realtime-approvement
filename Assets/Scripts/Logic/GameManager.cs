@@ -30,6 +30,7 @@ public class GameManager : MonoBehaviour
 
     [Header("UI引用")]
     public GameObject pausePanel; // 暂停界面
+    public GameObject storePanel;  // 商店界面
 
     private bool isPaused = false;
 
@@ -447,6 +448,61 @@ public class GameManager : MonoBehaviour
         if (combo % 100 == 0)
         {
             moneyScale = Math.Min(1.5f, moneyScale + 0.1f);
+        }
+    }
+
+    /// <summary>
+    /// 打开商店（绑定到商店按钮）
+    /// </summary>
+    public void OpenShop()
+    {
+        Debug.Log($"尝试打开商店... storePanel is null? {storePanel == null}");
+        
+        if (storePanel != null)
+        {
+            // 尝试使用 ShopUI 脚本逻辑
+            ShopUI shopUI = storePanel.GetComponent<ShopUI>();
+            if (shopUI != null)
+            {
+                Debug.Log("调用 ShopUI.OpenShop()");
+                shopUI.OpenShop();
+            }
+            else
+            {
+                Debug.Log("直接激活 storePanel");
+                storePanel.SetActive(true);
+            }
+
+            // 暂停时间，但不显示暂停菜单
+            isPaused = true;
+            Time.timeScale = 0f;
+            OnPauseStateChanged?.Invoke(true);
+        }
+        else
+        {
+            Debug.LogError("打开商店失败：storePanel 未赋值！请在 Inspector 中将 ShopPanel 拖给 GameManager 的 Store Panel 字段。");
+        }
+    }
+
+    /// <summary>
+    /// 关闭商店
+    /// </summary>
+    public void CloseShop()
+    {
+        if (storePanel != null)
+        {
+            ShopUI shopUI = storePanel.GetComponent<ShopUI>();
+            if (shopUI != null)
+            {
+                shopUI.CloseShop();
+            }
+            else
+            {
+                storePanel.SetActive(false);
+            }
+
+            // 恢复游戏
+            ResumeGame();
         }
     }
 

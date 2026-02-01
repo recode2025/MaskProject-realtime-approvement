@@ -9,6 +9,7 @@ public class HUD : MonoBehaviour {
     [SerializeField] private Text ComboCount;
     [SerializeField] private Text Combo;
     [SerializeField] private Button PauseButton;
+    [SerializeField] private Button StoreButton; // 新增：商店按钮
     
     [SerializeField] private GameObject Panel; // 恢复：用于自动注册给 GameManager
 
@@ -64,6 +65,13 @@ public class HUD : MonoBehaviour {
             GameManager.Instance.PauseGame();
         });
 
+        // 绑定商店按钮
+        if (StoreButton != null) {
+            StoreButton.onClick.AddListener(() => {
+                GameManager.Instance.OpenShop();
+            });
+        }
+
         // 监听暂停状态，暂停时隐藏按钮，恢复时显示
         GameManager.Instance.OnPauseStateChanged += OnPauseStateChanged;
 
@@ -77,6 +85,9 @@ public class HUD : MonoBehaviour {
     private void OnPauseStateChanged(bool isPaused) {
         if (PauseButton != null) {
             PauseButton.gameObject.SetActive(!isPaused);
+        }
+        if (StoreButton != null) {
+            StoreButton.gameObject.SetActive(!isPaused);
         }
     }
 
