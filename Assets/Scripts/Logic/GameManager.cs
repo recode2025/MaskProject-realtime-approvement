@@ -85,7 +85,7 @@ public class GameManager : MonoBehaviour {
         return 0f;
     }
 
-    void gameStart() {
+    public void gameStart() {
         /// <summary>
         /// 游戏开始
         /// </summary>

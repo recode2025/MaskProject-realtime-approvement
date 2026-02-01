@@ -26,6 +26,13 @@ public class SceneTransition : MonoBehaviour
     [Tooltip("门打开动画时长（秒）")]
     public float openDuration = 1.0f;
     
+    [Header("游戏启动设置")]
+    [Tooltip("进入GameScene后等待多少秒启动游戏")]
+    public float gameStartDelay = 3.0f;
+    
+    [Tooltip("GameScene的场景名称")]
+    public string gameSceneName = "GameScene";
+    
     [Header("音效")]
     [Tooltip("场景切换音效")]
     public AudioClip transitionSound;
@@ -217,6 +224,8 @@ public class SceneTransition : MonoBehaviour
         if (showDebugLog)
         {
             Debug.Log($"[SceneTransition] 开始切换到场景: {sceneName}");
+            Debug.Log($"[SceneTransition] 左门对象: {(leftDoor != null ? leftDoor.name : "null")}");
+            Debug.Log($"[SceneTransition] 右门对象: {(rightDoor != null ? rightDoor.name : "null")}");
         }
         
         // 播放音效
@@ -231,45 +240,139 @@ public class SceneTransition : MonoBehaviour
         }
         
         // 关闭门（从两侧移动到中间）
+        if (showDebugLog)
+        {
+            Debug.Log("[SceneTransition] 开始关闭门动画");
+        }
         yield return StartCoroutine(CloseDoors());
         
-        // 标记为DontDestroyOnLoad，确保过渡到下一个场景时不被销毁
-        // 如果canvas为null，则标记当前GameObject
-        if (canvas != null)
+        // 标记门对象为DontDestroyOnLoad，确保过渡到下一个场景时不被销毁
+        if (leftDoor != null)
         {
-            DontDestroyOnLoad(canvas.gameObject);
-        }
-        else
-        {
-            DontDestroyOnLoad(gameObject);
+            GameObject leftRoot = leftDoor.transform.root.gameObject;
+            DontDestroyOnLoad(leftRoot);
             if (showDebugLog)
             {
-                Debug.LogWarning("[SceneTransition] Canvas为null，标记当前GameObject为DontDestroyOnLoad");
+                Debug.Log($"[SceneTransition] 左门根对象已标记: {leftRoot.name}");
             }
         }
         
+        if (rightDoor != null)
+        {
+            GameObject rightRoot = rightDoor.transform.root.gameObject;
+            DontDestroyOnLoad(rightRoot);
+            if (showDebugLog)
+            {
+                Debug.Log($"[SceneTransition] 右门根对象已标记: {rightRoot.name}");
+            }
+        }
+        
+        DontDestroyOnLoad(gameObject);
+        
+        if (showDebugLog)
+        {
+            Debug.Log("[SceneTransition] 所有对象已标记为DontDestroyOnLoad");
+        }
+        
         // 加载场景
+        if (showDebugLog)
+        {
+            Debug.Log($"[SceneTransition] 开始异步加载场景: {sceneName}");
+        }
+        
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
         yield return asyncLoad;
         
         if (showDebugLog)
         {
             Debug.Log($"[SceneTransition] 场景加载完成: {sceneName}");
+            Debug.Log($"[SceneTransition] 当前场景: {SceneManager.GetActiveScene().name}");
         }
         
         // 等待一帧，确保场景完全加载
         yield return null;
         
+        // 检查门对象是否还存在
+        if (showDebugLog)
+        {
+            Debug.Log($"[SceneTransition] 场景切换后 - 左门: {(leftDoor != null ? "存在" : "null")}");
+            Debug.Log($"[SceneTransition] 场景切换后 - 右门: {(rightDoor != null ? "存在" : "null")}");
+        }
+        
+        if (leftDoor == null || rightDoor == null)
+        {
+            Debug.LogError("[SceneTransition] 门对象在场景切换后丢失！");
+            Instance = null;
+            yield break;
+        }
+        
+        // 如果进入的是GameScene，等待指定时间后启动游戏
+        if (sceneName == gameSceneName)
+        {
+            if (showDebugLog)
+            {
+                Debug.Log($"[SceneTransition] 进入GameScene，等待 {gameStartDelay} 秒后启动游戏");
+            }
+            
+            yield return new WaitForSeconds(gameStartDelay);
+            
+            // 调用GameManager的gameStart方法
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.gameStart();
+                
+                if (showDebugLog)
+                {
+                    Debug.Log("[SceneTransition] 已调用 GameManager.gameStart()");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[SceneTransition] GameManager.Instance 为 null，无法启动游戏");
+            }
+        }
+        
         // 打开门（从中间移动到两侧）
+        if (showDebugLog)
+        {
+            Debug.Log("[SceneTransition] 开始打开门动画");
+        }
         yield return StartCoroutine(OpenDoors());
         
-        // 销毁Canvas或当前GameObject
-        if (canvas != null)
+        // 销毁门对象和Canvas
+        if (leftDoor != null)
         {
-            Destroy(canvas.gameObject);
+            GameObject rootObject = leftDoor.transform.root.gameObject;
+            if (rootObject != null)
+            {
+                if (showDebugLog)
+                {
+                    Debug.Log($"[SceneTransition] 销毁左门根对象: {rootObject.name}");
+                }
+                Destroy(rootObject);
+            }
         }
-        else
+        
+        if (rightDoor != null && rightDoor.transform.root.gameObject != leftDoor.transform.root.gameObject)
         {
+            GameObject rootObject = rightDoor.transform.root.gameObject;
+            if (rootObject != null)
+            {
+                if (showDebugLog)
+                {
+                    Debug.Log($"[SceneTransition] 销毁右门根对象: {rootObject.name}");
+                }
+                Destroy(rootObject);
+            }
+        }
+        
+        // 如果当前对象不是门的根对象，也销毁它
+        if (gameObject != null && leftDoor != null && gameObject != leftDoor.transform.root.gameObject)
+        {
+            if (showDebugLog)
+            {
+                Debug.Log($"[SceneTransition] 销毁SceneTransition对象: {gameObject.name}");
+            }
             Destroy(gameObject);
         }
         
@@ -287,6 +390,12 @@ public class SceneTransition : MonoBehaviour
     /// </summary>
     private IEnumerator CloseDoors()
     {
+        if (leftDoor == null || rightDoor == null)
+        {
+            Debug.LogError("[SceneTransition] 门对象为null，无法执行关闭动画");
+            yield break;
+        }
+        
         float elapsedTime = 0f;
         
         Vector2 leftStart = leftDoor.rectTransform.anchoredPosition;
@@ -300,15 +409,15 @@ public class SceneTransition : MonoBehaviour
             // 使用平滑曲线
             float smoothT = Mathf.SmoothStep(0, 1, t);
             
-            leftDoor.rectTransform.anchoredPosition = Vector2.Lerp(leftStart, leftDoorClosedPos, smoothT);
-            rightDoor.rectTransform.anchoredPosition = Vector2.Lerp(rightStart, rightDoorClosedPos, smoothT);
+            if (leftDoor != null) leftDoor.rectTransform.anchoredPosition = Vector2.Lerp(leftStart, leftDoorClosedPos, smoothT);
+            if (rightDoor != null) rightDoor.rectTransform.anchoredPosition = Vector2.Lerp(rightStart, rightDoorClosedPos, smoothT);
             
             yield return null;
         }
         
         // 确保到达最终位置
-        leftDoor.rectTransform.anchoredPosition = leftDoorClosedPos;
-        rightDoor.rectTransform.anchoredPosition = rightDoorClosedPos;
+        if (leftDoor != null) leftDoor.rectTransform.anchoredPosition = leftDoorClosedPos;
+        if (rightDoor != null) rightDoor.rectTransform.anchoredPosition = rightDoorClosedPos;
         
         if (showDebugLog)
         {
@@ -321,6 +430,12 @@ public class SceneTransition : MonoBehaviour
     /// </summary>
     private IEnumerator OpenDoors()
     {
+        if (leftDoor == null || rightDoor == null)
+        {
+            Debug.LogError("[SceneTransition] 门对象为null，无法执行打开动画");
+            yield break;
+        }
+        
         float elapsedTime = 0f;
         
         Vector2 leftStart = leftDoor.rectTransform.anchoredPosition;
@@ -334,15 +449,15 @@ public class SceneTransition : MonoBehaviour
             // 使用平滑曲线
             float smoothT = Mathf.SmoothStep(0, 1, t);
             
-            leftDoor.rectTransform.anchoredPosition = Vector2.Lerp(leftStart, leftDoorStartPos, smoothT);
-            rightDoor.rectTransform.anchoredPosition = Vector2.Lerp(rightStart, rightDoorStartPos, smoothT);
+            if (leftDoor != null) leftDoor.rectTransform.anchoredPosition = Vector2.Lerp(leftStart, leftDoorStartPos, smoothT);
+            if (rightDoor != null) rightDoor.rectTransform.anchoredPosition = Vector2.Lerp(rightStart, rightDoorStartPos, smoothT);
             
             yield return null;
         }
         
         // 确保到达最终位置
-        leftDoor.rectTransform.anchoredPosition = leftDoorStartPos;
-        rightDoor.rectTransform.anchoredPosition = rightDoorStartPos;
+        if (leftDoor != null) leftDoor.rectTransform.anchoredPosition = leftDoorStartPos;
+        if (rightDoor != null) rightDoor.rectTransform.anchoredPosition = rightDoorStartPos;
         
         if (showDebugLog)
         {
