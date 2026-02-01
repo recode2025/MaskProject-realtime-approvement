@@ -1021,6 +1021,10 @@ MonoBehaviour:
   normalCharacter: {fileID: 448223980}
   specialCharacter: {fileID: 1904715284}
   transitionDuration: 1
+  normalIntroMusic: {fileID: 8300000, guid: d7a41f1d26f5bf445b335c7c9b015487, type: 3}
+  normalLoopMusic: {fileID: 8300000, guid: 4797532dd55ffcf4a9ce081ec273af2a, type: 3}
+  specialMusic: {fileID: 8300000, guid: f39db8957e7920147bfadc0ed7aefab6, type: 3}
+  musicVolume: 0.5
   showDebugLog: 0
 --- !u!1 &519489200
 GameObject:

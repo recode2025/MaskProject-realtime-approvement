@@ -1476,6 +1476,8 @@ MonoBehaviour:
   rightDoor: {fileID: 1148076214}
   closeDuration: 1
   openDuration: 1
+  gameStartDelay: 3
+  gameSceneName: GameScene
   transitionSound: {fileID: 8300000, guid: 8f5ec52eef0e0104aa75f8ca414e079b, type: 3}
   soundVolume: 1
   showDebugLog: 0
@@ -2029,7 +2031,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1440181449}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1938376727}
+        m_TargetAssemblyTypeName: DelayedBackgroundMusic, Assembly-CSharp
+        m_MethodName: FadeOutMusic
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!114 &1440181449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2395,6 +2409,55 @@ MonoBehaviour:
   - button: {fileID: 102050237}
     hoverText: {fileID: 159991080}
   showDebugLog: 0
+--- !u!1 &1938376726
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1938376728}
+  - component: {fileID: 1938376727}
+  m_Layer: 0
+  m_Name: "Music\u63A7\u5236"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1938376727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1938376726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d7e6f5a4c3b2d1e0f9a8b7c6d5e4f3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  backgroundMusic: {fileID: 8300000, guid: 0e76caaf57348ea44986a7521afdc4f3, type: 3}
+  delayTime: 8
+  volume: 0.5
+  loop: 1
+  fadeOutDuration: 1
+--- !u!4 &1938376728
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1938376726}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 760.09174, y: 1018.33044, z: -0.47697076}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1948905826
 GameObject:
   m_ObjectHideFlags: 0
@@ -2671,3 +2734,4 @@ SceneRoots:
   - {fileID: 1103820506}
   - {fileID: 1159583460}
   - {fileID: 1207864657}
+  - {fileID: 1938376728}

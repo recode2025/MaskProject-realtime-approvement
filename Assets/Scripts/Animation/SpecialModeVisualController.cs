@@ -26,6 +26,20 @@ public class SpecialModeVisualController : MonoBehaviour
     [Tooltip("背景渐变时长（秒）")]
     public float transitionDuration = 1.0f;
     
+    [Header("背景音乐设置")]
+    [Tooltip("普通模式开头音乐（播放一次）")]
+    public AudioClip normalIntroMusic;
+    
+    [Tooltip("普通模式循环音乐")]
+    public AudioClip normalLoopMusic;
+    
+    [Tooltip("特殊模式音乐")]
+    public AudioClip specialMusic;
+    
+    [Tooltip("音乐音量")]
+    [Range(0f, 1f)]
+    public float musicVolume = 0.5f;
+    
     [Header("调试")]
     [Tooltip("显示调试日志")]
     public bool showDebugLog = false;
@@ -36,10 +50,22 @@ public class SpecialModeVisualController : MonoBehaviour
     // 渐变协程
     private Coroutine transitionCoroutine;
     
+    // 音频源
+    private AudioSource audioSource;
+    
+    // 是否已播放过开头音乐
+    private bool hasPlayedIntro = false;
+    
     void Start()
     {
+        // 设置音频源
+        SetupAudioSource();
+        
         // 初始化状态
         InitializeVisuals();
+        
+        // 播放普通模式音乐
+        PlayNormalMusic();
         
         if (showDebugLog)
         {
@@ -83,6 +109,105 @@ public class SpecialModeVisualController : MonoBehaviour
         {
             StopCoroutine(transitionCoroutine);
             transitionCoroutine = null;
+        }
+    }
+    
+    /// <summary>
+    /// 设置音频源
+    /// </summary>
+    private void SetupAudioSource()
+    {
+        audioSource = GetComponent<AudioSource>();
+        
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+        
+        audioSource.volume = musicVolume;
+        audioSource.playOnAwake = false;
+        
+        if (showDebugLog)
+        {
+            Debug.Log("[SpecialModeVisualController] 音频源设置完成");
+        }
+    }
+    
+    /// <summary>
+    /// 播放普通模式音乐
+    /// </summary>
+    private void PlayNormalMusic()
+    {
+        if (audioSource == null) return;
+        
+        // 如果还没播放过开头音乐，先播放开头
+        if (!hasPlayedIntro && normalIntroMusic != null)
+        {
+            audioSource.clip = normalIntroMusic;
+            audioSource.loop = false;
+            audioSource.Play();
+            
+            // 开头音乐播放完后，播放循环音乐
+            StartCoroutine(WaitForIntroToFinish());
+            
+            if (showDebugLog)
+            {
+                Debug.Log("[SpecialModeVisualController] 播放普通模式开头音乐");
+            }
+        }
+        else if (normalLoopMusic != null)
+        {
+            // 直接播放循环音乐
+            audioSource.clip = normalLoopMusic;
+            audioSource.loop = true;
+            audioSource.Play();
+            
+            if (showDebugLog)
+            {
+                Debug.Log("[SpecialModeVisualController] 播放普通模式循环音乐");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 等待开头音乐播放完毕
+    /// </summary>
+    private IEnumerator WaitForIntroToFinish()
+    {
+        hasPlayedIntro = true;
+        
+        // 等待开头音乐播放完
+        yield return new WaitWhile(() => audioSource.isPlaying);
+        
+        // 播放循环音乐
+        if (normalLoopMusic != null && !isInSpecialMode)
+        {
+            audioSource.clip = normalLoopMusic;
+            audioSource.loop = true;
+            audioSource.Play();
+            
+            if (showDebugLog)
+            {
+                Debug.Log("[SpecialModeVisualController] 开头音乐结束，开始循环音乐");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 播放特殊模式音乐
+    /// </summary>
+    private void PlaySpecialMusic()
+    {
+        if (audioSource == null || specialMusic == null) return;
+        
+        audioSource.Stop();
+        audioSource.clip = specialMusic;
+        audioSource.loop = true;
+        audioSource.Play();
+        
+        if (showDebugLog)
+        {
+            Debug.Log("[SpecialModeVisualController] 播放特殊模式音乐");
         }
     }
     
@@ -173,6 +298,9 @@ public class SpecialModeVisualController : MonoBehaviour
             Debug.Log("[SpecialModeVisualController] 开始渐变到特殊模式");
         }
         
+        // 播放特殊模式音乐
+        PlaySpecialMusic();
+        
         // 立即切换角色
         normalCharacter.SetActive(false);
         specialCharacter.SetActive(true);
@@ -221,6 +349,20 @@ public class SpecialModeVisualController : MonoBehaviour
         if (showDebugLog)
         {
             Debug.Log("[SpecialModeVisualController] 开始渐变回普通模式");
+        }
+        
+        // 恢复播放普通模式循环音乐
+        if (audioSource != null && normalLoopMusic != null)
+        {
+            audioSource.Stop();
+            audioSource.clip = normalLoopMusic;
+            audioSource.loop = true;
+            audioSource.Play();
+            
+            if (showDebugLog)
+            {
+                Debug.Log("[SpecialModeVisualController] 恢复普通模式循环音乐");
+            }
         }
         
         // 立即切换角色
